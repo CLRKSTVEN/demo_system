@@ -12,7 +12,8 @@ html {
   min-height: 100%; }
 
 body {
-  overflow-x: hidden; }
+  overflow-x: hidden;
+  margin: 0; }
 
 .metismenu {
   padding: 0; }
