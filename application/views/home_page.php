@@ -28,6 +28,7 @@
 	<!--===============================================================================================-->
 	<link rel="stylesheet" type="text/css" href="<?= base_url(); ?>assets/css/util.css">
 	<link rel="stylesheet" type="text/css" href="<?= base_url(); ?>assets/css/main.css">
+	<link rel='stylesheet' type='text/css' href='<?= base_url(); ?>assets/css/custom-overrides.css'>
 	<!--===============================================================================================-->
 
 	<style>
@@ -52,10 +53,10 @@
 
 </head>
 
-<body style="background-color: #666666;">
+<body>
 
 	<?php if (!empty($active_demo_db)) : ?>
-		<div style="background:#fff3cd;color:#856404;padding:10px;text-align:center;font-weight:bold;">
+		<div class="active-demo-banner">
 			Active Demo Database: <?= htmlspecialchars($active_demo_db, ENT_QUOTES, 'UTF-8'); ?>
 		</div>
 	<?php endif; ?>

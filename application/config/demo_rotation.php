@@ -2,9 +2,11 @@
 defined('BASEPATH') or exit('No direct script access allowed');
 
 return array(
-    'databases' => array('demo_a', 'demo_b'),
+    'databases' => array('demo_b', 'demo_a'),
     'timezone' => 'Asia/Manila',
     'cutover_time' => '00:00',
+    'auto_cleanup' => TRUE,
+    'auto_cleanup_grace_minutes' => 1,
     'preserve_tables' => array(
         'srms_settings_o',
         'track_strand',

@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -37,6 +37,15 @@
 </head>
 
 <body>
+
+<?php
+	if (!isset($provinces)) {
+		$CI =& get_instance();
+		$CI->load->model('StudentModel');
+		$provinces = $CI->StudentModel->get_provinces();
+	}
+?>
+?>
 
 	<!-- Begin page -->
 	<div id="wrapper">
@@ -316,7 +325,10 @@
 													<div class="form-group">
 														<label for="province">Province<span style="color:red">*</span></label>
 														<select id="province" name="Province" class="form-control" required>
-															<option value="">Select Province</option>
+																					<option value="">Select Province</option>
+						<?php if (!empty($provinces)) : foreach ($provinces as $province) : ?>
+							<option value="<?= htmlspecialchars($province['id'], ENT_QUOTES, 'UTF-8'); ?>"><?= htmlspecialchars($province['name'], ENT_QUOTES, 'UTF-8'); ?></option>
+						<?php endforeach; endif; ?>
 
 														</select>
 													</div>
@@ -628,3 +640,7 @@
 </body>
 
 </html>
+
+
+
+
