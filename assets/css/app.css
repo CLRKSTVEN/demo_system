@@ -467,6 +467,7 @@ body.enlarged {
   position: fixed;
   left: 0;
   right: 0;
+  top: 0;
   height: 70px;
   z-index: 100;
   -webkit-box-shadow: 0px 1px 2px 0px rgba(33, 37, 41, 0.1);
