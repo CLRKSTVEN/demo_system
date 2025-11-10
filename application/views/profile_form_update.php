@@ -36,13 +36,7 @@
 
 <body>
 
-<?php
-	if (!isset($provinces)) {
-		$CI =& get_instance();
-		$CI->load->model('StudentModel');
-		$provinces = $CI->StudentModel->get_provinces();
-	}
-?>`r`n`r`n<!-- Begin page -->
+	<!-- Begin page -->
 	<div id="wrapper">
 
 		<!-- Topbar Start -->
@@ -658,4 +652,3 @@
 </body>
 
 </html>
-

@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -28,7 +28,6 @@
 	<!--===============================================================================================-->
 	<link rel="stylesheet" type="text/css" href="<?= base_url(); ?>assets/css/util.css">
 	<link rel="stylesheet" type="text/css" href="<?= base_url(); ?>assets/css/main.css">
-	<link rel='stylesheet' type='text/css' href='<?= base_url(); ?>assets/css/custom-overrides.css'>
 	<!--===============================================================================================-->
 
 	<style>
@@ -53,13 +52,7 @@
 
 </head>
 
-<body>
-
-	<?php if (!empty($active_demo_db)) : ?>
-		<div class="active-demo-banner">
-			Active Demo Database: <?= htmlspecialchars($active_demo_db, ENT_QUOTES, 'UTF-8'); ?>
-		</div>
-	<?php endif; ?>
+<body style="background-color: #666666;">
 
 	<div class="limiter">
 		<div class="container-login100">

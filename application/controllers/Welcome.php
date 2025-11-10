@@ -1,7 +1,8 @@
 <?php
-defined('BASEPATH') OR exit('No direct script access allowed');
+defined('BASEPATH') or exit('No direct script access allowed');
 
-class Welcome extends CI_Controller {
+class Welcome extends CI_Controller
+{
 
 	/**
 	 * Index Page for this controller.
@@ -24,11 +25,7 @@ class Welcome extends CI_Controller {
 		$query = $this->db->query('SELECT DATABASE() AS db');
 		$db_name = ($query && $query->num_rows() > 0) ? $query->row()->db : 'unknown';
 
-		log_message('debug', 'Active demo DB: ' . $db_name);
 
-		echo '<div style="background:#fff3cd;color:#856404;padding:10px;text-align:center;font-weight:bold;">';
-		echo 'Active Demo Database: ' . htmlspecialchars($db_name, ENT_QUOTES, 'UTF-8');
-		echo '</div>';
 
 		$this->load->view('hris_home', array('active_demo_db' => $db_name));
 	}

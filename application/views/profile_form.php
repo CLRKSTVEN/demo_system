@@ -38,15 +38,6 @@
 
 <body>
 
-<?php
-	if (!isset($provinces)) {
-		$CI =& get_instance();
-		$CI->load->model('StudentModel');
-		$provinces = $CI->StudentModel->get_provinces();
-	}
-?>
-?>
-
 	<!-- Begin page -->
 	<div id="wrapper">
 
@@ -84,22 +75,22 @@
 					</div>
 
 					<?php if ($this->session->flashdata('success')): ?>
-    <div class="alert alert-success alert-dismissible fade show" role="alert">
-        <?= $this->session->flashdata('success'); ?>
-        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-        </button>
-    </div>
-<?php endif; ?>
+						<div class="alert alert-success alert-dismissible fade show" role="alert">
+							<?= $this->session->flashdata('success'); ?>
+							<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+								<span aria-hidden="true">&times;</span>
+							</button>
+						</div>
+					<?php endif; ?>
 
-<?php if ($this->session->flashdata('danger')): ?>
-    <div class="alert alert-danger alert-dismissible fade show" role="alert">
-        <?= $this->session->flashdata('danger'); ?>
-        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-        </button>
-    </div>
-<?php endif; ?>
+					<?php if ($this->session->flashdata('danger')): ?>
+						<div class="alert alert-danger alert-dismissible fade show" role="alert">
+							<?= $this->session->flashdata('danger'); ?>
+							<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+								<span aria-hidden="true">&times;</span>
+							</button>
+						</div>
+					<?php endif; ?>
 
 
 					<div class="col-xl-12 col-sm-6 ">
@@ -325,10 +316,7 @@
 													<div class="form-group">
 														<label for="province">Province<span style="color:red">*</span></label>
 														<select id="province" name="Province" class="form-control" required>
-																					<option value="">Select Province</option>
-						<?php if (!empty($provinces)) : foreach ($provinces as $province) : ?>
-							<option value="<?= htmlspecialchars($province['id'], ENT_QUOTES, 'UTF-8'); ?>"><?= htmlspecialchars($province['name'], ENT_QUOTES, 'UTF-8'); ?></option>
-						<?php endforeach; endif; ?>
+															<option value="">Select Province</option>
 
 														</select>
 													</div>
@@ -640,7 +628,3 @@
 </body>
 
 </html>
-
-
-
-
