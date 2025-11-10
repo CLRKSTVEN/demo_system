@@ -2639,6 +2639,23 @@ function gradeSheets($sy, $SubjectCode, $Section)
 		return $formatted_barangays;
 	}
 
+	/**
+	 * Retrieve all address rows for client-side filtering.
+	 *
+	 * @return array[]
+	 */
+	public function get_address_data()
+	{
+		return $this->db
+			->select('Province, City, Brgy')
+			->from('settings_address')
+			->order_by('Province', 'ASC')
+			->order_by('City', 'ASC')
+			->order_by('Brgy', 'ASC')
+			->get()
+			->result_array();
+	}
+
 	function countItemsByCategory($itemCategory)
 	{
 		$this->db->where('itemCategory', $itemCategory); // Filter by description

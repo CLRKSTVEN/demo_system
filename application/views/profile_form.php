@@ -521,76 +521,98 @@
 
 	<script type="text/javascript">
 		$(document).ready(function() {
-			// Load provinces on page load
-			$.ajax({
-				url: '<?php echo site_url('Page/get_provinces'); ?>',
-				type: 'GET',
-				dataType: 'json',
-				success: function(data) {
-					$('#province').html('<option value="">Select Province</option>');
-					$.each(data, function(index, province) {
-						$('#province').append('<option value="' + province.id + '">' + province.name + '</option>');
+			const addressData = <?= json_encode($addressData ?? [], JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT); ?>;
+			const $province = $('#province');
+			const $city = $('#city');
+			const $barangay = $('#barangay');
+
+			function uniqueEntries(values) {
+				return [...new Set(values.filter(Boolean))].sort();
+			}
+
+			function resetCities() {
+				$city.html('<option value="">Select City/Municipality</option>');
+				$city.prop('disabled', true);
+			}
+
+			function resetBarangays() {
+				$barangay.html('<option value="">Select Barangay</option>');
+				$barangay.prop('disabled', true);
+			}
+
+			function populateProvinces() {
+				const provinces = uniqueEntries(addressData.map(item => item.Province));
+				$province.html('<option value="">Select Province</option>');
+				provinces.forEach(function(province) {
+					$province.append('<option value="' + province + '">' + province + '</option>');
+				});
+			}
+
+			function populateCities(province) {
+				const cities = uniqueEntries(
+					addressData
+						.filter(function(item) {
+							return item.Province === province;
+						})
+						.map(function(item) {
+							return item.City;
+						})
+				);
+				$city.html('<option value="">Select City/Municipality</option>');
+				if (cities.length) {
+					cities.forEach(function(city) {
+						$city.append('<option value="' + city + '">' + city + '</option>');
 					});
+					$city.prop('disabled', false);
+				} else {
+					$city.prop('disabled', true);
 				}
-			});
+				resetBarangays();
+			}
 
-			// Load cities based on selected province
-			$('#province').change(function() {
-				var province = $(this).val();
-				$('#city').prop('disabled', province == '');
-				$('#barangay').prop('disabled', true).html('<option value="">Select Barangay</option>');
+			function populateBarangays(city) {
+				const barangays = uniqueEntries(
+					addressData
+						.filter(function(item) {
+							return item.City === city;
+						})
+						.map(function(item) {
+							return item.Brgy;
+						})
+				);
+				$barangay.html('<option value="">Select Barangay</option>');
+				if (barangays.length) {
+					barangays.forEach(function(barangay) {
+						$barangay.append('<option value="' + barangay + '">' + barangay + '</option>');
+					});
+					$barangay.prop('disabled', false);
+				} else {
+					$barangay.prop('disabled', true);
+				}
+			}
 
+			$province.on('change', function() {
+				const province = $(this).val();
 				if (province) {
-					$.ajax({
-						url: '<?php echo site_url('Page/get_cities'); ?>',
-						type: 'POST',
-						dataType: 'json',
-						data: {
-							province: province
-						},
-						success: function(data) {
-							$('#city').html('<option value="">Select City/Municipality</option>');
-							$.each(data, function(index, city) {
-								$('#city').append('<option value="' + city.id + '">' + city.name + '</option>');
-							});
-						},
-						error: function(xhr, status, error) {
-							console.error("AJAX Error: ", status, error);
-						}
-					});
+					populateCities(province);
 				} else {
-					$('#city').html('<option value="">Select City/Municipality</option>');
+					resetCities();
+					resetBarangays();
 				}
 			});
 
-
-			// Load barangays based on selected city
-			$('#city').change(function() {
-				var city = $(this).val();
-				$('#barangay').prop('disabled', city == '');
-
+			$city.on('change', function() {
+				const city = $(this).val();
 				if (city) {
-					$.ajax({
-						url: '<?php echo site_url('Page/get_barangays'); ?>',
-						type: 'POST',
-						dataType: 'json',
-						data: {
-							city: city
-						},
-						success: function(data) {
-							$('#barangay').html('<option value="">Select Barangay</option>');
-							$.each(data, function(index, barangay) {
-								$('#barangay').append('<option value="' + barangay.id + '">' + barangay.name + '</option>');
-							});
-						},
-						error: function(xhr, status, error) {
-							console.error("AJAX Error: ", status, error);
-						}
-					});
+					populateBarangays(city);
 				} else {
-					$('#barangay').html('<option value="">Select Barangay</option>');
+					resetBarangays();
 				}
 			});
+
+			populateProvinces();
+			resetCities();
+			resetBarangays();
 		});
 	</script>
 
