@@ -1,0 +1,94 @@
+body{
+    font-family: verdana, Arial, Helvetica, sans-serif;
+    font-size:12px;
+    line-height:1.7em;
+}
+
+.wrap{
+    width:90%;
+    margin:auto;
+    
+}
+.wrap .banner{
+    width:100%;
+    margin-bottom:20px;
+}
+
+.card_deped{
+    width:50%;
+    float:right;
+}
+
+.card_deped table{
+    width:100%;
+   }
+.card_deped table td, .card_deped table th{
+       padding:5px 15px;
+}
+   
+.wbborder{
+       font-weight:bold; 
+       border-bottom:2px solid #222
+}
+.grade{
+    width:100% !important;
+    border-collapse: collapse;
+}
+.grade td{
+    border:1px solid #222;
+}
+
+.card_deped table td, .card_deped .scale th{
+    padding:2px 5px;
+}
+
+.scale{
+    width:60% !important;
+    border-collapse: collapse;
+    font-size:10px;
+    margin-top:50px;
+}
+.scale th, .scale td{
+    border:1px solid #222;
+}
+
+.name{
+    text-align:center; 
+    padding-bottom:30px !important
+}
+
+.nextpage {
+    padding:10px 15px;
+    background-color: #007bff;
+    color:#fff;
+    text-decoration:none;
+    border-radius: 5px;
+    float:left;
+}
+
+.blocker{clear: both !important;}
+
+
+
+
+
+@media print {
+
+.card_deped table td, .card_deped table th{
+        padding:2px 8px;
+ }
+ 
+ .name{margin-bottom:5px !important}
+ .card_deped p{
+    margin:5px 0;
+ }
+ .nextpage{
+    display: none;
+ }
+
+.card_deped .scale th{
+    padding:2px 5px;
+}
+
+}
+   

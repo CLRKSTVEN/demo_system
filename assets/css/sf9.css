@@ -1,0 +1,183 @@
+*{
+    margin:0; padding:0;
+}
+body{
+    font-family: "Times New Roman", Times, serif;
+    font-size:12px;
+    line-height:1.7em;
+}
+
+.wrap{
+    width:90%;
+    margin:auto;
+    margin-bottom:20px;
+}
+.wrap{
+    margin-top:50px;
+}
+.wrap table{
+    width:100%;
+    border-collapse: collapse;
+    border-spacing: 0;
+    
+}
+table.wb td, table.wb th{
+    border:1px solid #222;
+    padding:2px 5px;
+}
+
+.cleft, .cright{
+    float:left;
+    width:50%;
+}
+.tw{
+    margin:0 30px;
+}
+
+.tdbb{
+    border-bottom:1px solid #222 !important;
+}
+
+.tdbbs{
+    border:0 !important;
+    border-bottom: 1px solid #222 !important;
+    
+}
+
+.tdnb{
+    border:0 !important;
+}
+.text-center{
+    text-align:center;
+}
+.ct{
+    padding:20px 0;
+}
+.link{
+    width:90%;
+    margin:auto;
+    margin-top:20px;
+}
+.link a{
+    padding:10px 15px;
+    background-color: #007bff;
+    color:#fff;
+    text-decoration:none;
+    border-radius: 5px;
+}
+.special{
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+.heading{
+    background-color:#d0cece;
+    text-align:center;
+    font-weight: bold;
+    font-size:14px;
+    padding:10px 0 !important;
+}
+
+.font16{
+    font-size:16px !important;
+}
+
+.head{
+    font-size:16px;
+    font-weight:normal;
+    padding:20px 0 !important
+}
+
+.head2{
+    font-size:20px;
+}
+.sb{
+    font-weight: normal;
+    font-size:10px;
+    font-style: italic;
+    padding-bottom:20px;
+    display:block;
+}
+
+.width50{
+    width:50%;
+    float:left;
+}
+
+.p30tb {
+    padding:30px 0 !important;
+}
+
+.indent50{
+    text-indent: 50px;
+}
+
+.twb {
+    margin-top:20px;
+}
+
+.twb td, .twb th{
+    border:1px dashed #222;
+    padding:2px 5px;
+}
+
+.pl30{
+    padding-left:30px !important;
+}
+
+.tdwbc{
+    background-color: #d9d9d9;
+}
+
+.twrap{
+    border:1px solid #222;
+}
+.divtwrap{
+    padding:5px 70px;
+}
+.pwbc{
+    background-color: #d9d9d9;
+    text-align:center;
+    padding:8px 0;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size:16px;
+}
+
+.width49:nth-child(odd) {
+    margin-right:2%;
+}
+
+.width49{
+    width:49%;
+    float:left;
+}
+.with100{
+    width:100%;
+    margin-bottom:20px;
+}
+
+
+
+
+
+
+.blocker{
+    clear: both !important;
+}
+
+@media print {
+
+    /* body{
+        font-family: "Times New Roman", Times, serif;
+        font-size:12px;
+        line-height:1.2em;
+    } */
+
+     .link {
+        display: none;
+     }
+
+     
+    
+  
+    
+    }
