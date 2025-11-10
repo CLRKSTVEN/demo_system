@@ -2,7 +2,8 @@
 defined('BASEPATH') or exit('No direct script access allowed');
 
 
-$config['base_url'] = 'http://localhost/srms-wcm-bed/';
+// $config['base_url'] = 'http://localhost/srms-wcm-bed/';
+$config['base_url'] = 'http://localhost/demo_system/';
 
 $config['enable_hooks'] = TRUE;
 $config['maintenance_mode'] = false;
