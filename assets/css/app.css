@@ -54,13 +54,14 @@ body {
   color: #3bc0c3; }
 
 #wrapper {
-  height: 100%;
-  overflow: hidden;
+  min-height: 100vh;
+  overflow-x: hidden;
+  overflow-y: auto;
   width: 100%; }
 
 .content-page {
   margin-left: 240px;
-  overflow: hidden;
+  overflow: visible;
   padding: 0 15px 65px 15px;
   min-height: 80vh;
   margin-top: 70px; }

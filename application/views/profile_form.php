@@ -317,6 +317,9 @@
 														<label for="province">Province<span style="color:red">*</span></label>
 														<select id="province" name="Province" class="form-control" required>
 															<option value="">Select Province</option>
+															<?php foreach ($provinces ?? [] as $province) : ?>
+																<option value="<?= htmlspecialchars($province['id']); ?>"><?= htmlspecialchars($province['name']); ?></option>
+															<?php endforeach; ?>
 
 														</select>
 													</div>
