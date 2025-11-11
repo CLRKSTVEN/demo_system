@@ -8,10 +8,7 @@
 
 
 	<!--===============================================================================================-->
-	<?php $favicon_url = base_url('assets/images/favicon.ico') . '?v=2'; ?>
-	<link rel="icon" href="<?= $favicon_url; ?>" type="image/x-icon" />
-	<link rel="shortcut icon" href="<?= $favicon_url; ?>" type="image/x-icon" />
-	<link rel="apple-touch-icon" href="<?= base_url('assets/images/icons/favicon.ico'); ?>?v=2" />
+	<link rel="icon" type="<?= base_url(); ?>assets/image/ico" href="<?= base_url(); ?>assets/images/icons/favicon.ico" />
 	<!--===============================================================================================-->
 	<link rel="stylesheet" type="text/css" href="<?= base_url(); ?>assets/vendor/bootstrap/css/bootstrap.min.css">
 	<!--===============================================================================================-->
@@ -55,24 +52,7 @@
 
 </head>
 
-<?php
-$body_styles = ['background-color: #666666;'];
-if (!empty($data[0]->login_form_image)) {
-	$login_bg_url = base_url('upload/banners/' . $data[0]->login_form_image);
-	$body_styles[] = "background-image: url('{$login_bg_url}')";
-	$body_styles[] = "background-size: cover";
-	$body_styles[] = "background-position: center";
-	$body_styles[] = "background-repeat: no-repeat";
-}
-$body_style_attr = htmlspecialchars(implode(' ', $body_styles), ENT_QUOTES, 'UTF-8');
-?>
-
-<body style="<?= $body_style_attr; ?>">
-	<?php if (!empty($active_demo_db)) : ?>
-		<div class="active-demo-banner">
-			Active Demo Database: <?= htmlspecialchars($active_demo_db, ENT_QUOTES, 'UTF-8'); ?>
-		</div>
-	<?php endif; ?>
+<body style="background-color: #666666;">
 
 	<div class="limiter">
 		<div class="container-login100">
@@ -150,9 +130,7 @@ $body_style_attr = htmlspecialchars(implode(' ', $body_styles), ENT_QUOTES, 'UTF
 
 				</form>
 
-
-
-				<div class="login100-more" style="background-image: url('<?= base_url(); ?>upload/banners/<?php echo $data[0]->login_form_image; ?>');">
+				<div class="login100-more" style="background-image: url('<?= base_url(); ?>upload/banners/<?php echo $data[0]->loginFormImage; ?>');">
 
 
 				</div>
