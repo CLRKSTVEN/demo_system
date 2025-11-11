@@ -8,7 +8,10 @@
 
 
 	<!--===============================================================================================-->
-	<link rel="icon" type="<?= base_url(); ?>assets/image/ico" href="<?= base_url(); ?>assets/images/icons/favicon.ico" />
+	<?php $favicon_url = base_url('assets/images/favicon.ico') . '?v=2'; ?>
+	<link rel="icon" href="<?= $favicon_url; ?>" type="image/x-icon" />
+	<link rel="shortcut icon" href="<?= $favicon_url; ?>" type="image/x-icon" />
+	<link rel="apple-touch-icon" href="<?= base_url('assets/images/icons/favicon.ico'); ?>?v=2" />
 	<!--===============================================================================================-->
 	<link rel="stylesheet" type="text/css" href="<?= base_url(); ?>assets/vendor/bootstrap/css/bootstrap.min.css">
 	<!--===============================================================================================-->
@@ -53,6 +56,7 @@
 </head>
 
 <body style="background-color: #666666;">
+
 
 	<div class="limiter">
 		<div class="container-login100">
@@ -129,6 +133,13 @@
 
 
 				</form>
+
+				<?php
+				$active_demo_db_label = isset($active_demo_db) ? htmlspecialchars($active_demo_db, ENT_QUOTES, 'UTF-8') : 'unknown';
+				?>
+				<div class="text-center text-white small mt-3">
+					Active Database: <strong><?= $active_demo_db_label; ?></strong>
+				</div>
 
 				<div class="login100-more" style="background-image: url('<?= base_url(); ?>upload/banners/<?php echo $data[0]->loginFormImage; ?>');">
 
