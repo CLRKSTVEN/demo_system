@@ -55,8 +55,24 @@
 
 </head>
 
-<body style="background-color: #666666;">
+<?php
+$body_styles = ['background-color: #666666;'];
+if (!empty($data[0]->login_form_image)) {
+	$login_bg_url = base_url('upload/banners/' . $data[0]->login_form_image);
+	$body_styles[] = "background-image: url('{$login_bg_url}')";
+	$body_styles[] = "background-size: cover";
+	$body_styles[] = "background-position: center";
+	$body_styles[] = "background-repeat: no-repeat";
+}
+$body_style_attr = htmlspecialchars(implode(' ', $body_styles), ENT_QUOTES, 'UTF-8');
+?>
 
+<body style="<?= $body_style_attr; ?>">
+	<?php if (!empty($active_demo_db)) : ?>
+		<div class="active-demo-banner">
+			Active Demo Database: <?= htmlspecialchars($active_demo_db, ENT_QUOTES, 'UTF-8'); ?>
+		</div>
+	<?php endif; ?>
 
 	<div class="limiter">
 		<div class="container-login100">
@@ -134,14 +150,9 @@
 
 				</form>
 
-				<?php
-				$active_demo_db_label = isset($active_demo_db) ? htmlspecialchars($active_demo_db, ENT_QUOTES, 'UTF-8') : 'unknown';
-				?>
-				<div class="text-center text-white small mt-3">
-					Active Database: <strong><?= $active_demo_db_label; ?></strong>
-				</div>
 
-				<div class="login100-more" style="background-image: url('<?= base_url(); ?>upload/banners/<?php echo $data[0]->loginFormImage; ?>');">
+
+				<div class="login100-more" style="background-image: url('<?= base_url(); ?>upload/banners/<?php echo $data[0]->login_form_image; ?>');">
 
 
 				</div>
