@@ -14,7 +14,9 @@
   <meta content="Coderthemes" name="author" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <!-- App favicon -->
-  <link rel="shortcut icon" href="<?= base_url(); ?>assets/images/hris.ico">
+  <link rel="icon" href="<?= base_url('assets/images/favicon.ico'); ?>?v=2" type="image/x-icon" />
+  <link rel="shortcut icon" href="<?= base_url('assets/images/favicon.ico'); ?>?v=2" type="image/x-icon" />
+  <link rel="apple-touch-icon" href="<?= base_url('assets/images/icons/favicon.ico'); ?>?v=2" />
 
 
   <!-- third party css -->
