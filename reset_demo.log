@@ -58,3 +58,10 @@
  ✓ Imported baseline in 8.2s.
  ℹ No upload_master/ directory found — uploads reset skipped.
 ✅ Demo reset completed: 2025-11-12 11:15:44
+﻿﻿[2025-11-12 11:31:26] Starting demo reset…
+ DB target: demo_a
+ SQL file : C:\xampp\htdocs\demo_system\application/backup/srmsportal_demo1.sql
+ ✓ Recreated database 'demo_a'.
+ ✓ Imported baseline in 8.3s.
+ ℹ No upload_master/ directory found — uploads reset skipped.
+✅ Demo reset completed: 2025-11-12 11:31:34

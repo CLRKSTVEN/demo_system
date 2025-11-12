@@ -18,10 +18,10 @@ $db['default'] = array(
     // =========================
     // CPANEL (COMMENTED; UNCOMMENT ON DEPLOY)
     // =========================
-    // 'hostname' => 'localhost',  
-    // 'username' => 'srmsportal_demo1',   
-    // 'password' => 'moth34board',       
-    // 'database' => 'srmsportal_demo1', 
+    // 'hostname' => 'localhost',                 // cPanel MySQL host is usually 'localhost'
+    // 'username' => 'srmsportal_demo1',         // cPanel DB user
+    // 'password' => 'moth34board',              // cPanel DB password
+    // 'database' => 'srmsportal_demo1',         // cPanel DB name (prefix if your cPanel uses one)
 
     'dbdriver'  => 'mysqli',
     'dbprefix'  => '',
