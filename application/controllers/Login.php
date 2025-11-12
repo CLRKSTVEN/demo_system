@@ -24,11 +24,6 @@ class Login extends CI_Controller
             $result['active_sy'] = null; // or set a default fallback
         }
 
-        $this->load->database();
-        $query = $this->db->query('SELECT DATABASE() AS db');
-        $result['active_demo_db'] = ($query && $query->num_rows() > 0) ? $query->row()->db : 'unknown';
-        log_message('debug', 'Active demo DB: ' . $result['active_demo_db']);
-
         $this->load->view('home_page', $result);
     }
 
