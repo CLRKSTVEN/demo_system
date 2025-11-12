@@ -24,6 +24,7 @@ class Tools extends CI_Controller
     {
         // === HARD SAFETY RAILS: we only ever touch these specific resources ===
         $targetDb        = 'demo_a';
+        // $targetDb = 'srmsportal_demo1';
         $baselineSqlPath = FCPATH . 'application/backup/srmsportal_demo1.sql'; // already in your repo
         $uploadsLive     = FCPATH . 'upload';           // your current uploads
         $uploadsMaster   = FCPATH . 'upload_master';    // put your baseline files here (optional)

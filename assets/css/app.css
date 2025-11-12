@@ -12,8 +12,7 @@ html {
   min-height: 100%; }
 
 body {
-  overflow-x: hidden;
-  margin: 0; }
+  overflow-x: hidden; }
 
 .metismenu {
   padding: 0; }
@@ -54,14 +53,13 @@ body {
   color: #3bc0c3; }
 
 #wrapper {
-  min-height: 100vh;
-  overflow-x: hidden;
-  overflow-y: auto;
+  height: 100%;
+  overflow: hidden;
   width: 100%; }
 
 .content-page {
   margin-left: 240px;
-  overflow: visible;
+  overflow: hidden;
   padding: 0 15px 65px 15px;
   min-height: 80vh;
   margin-top: 70px; }
@@ -469,7 +467,6 @@ body.enlarged {
   position: fixed;
   left: 0;
   right: 0;
-  top: 0;
   height: 70px;
   z-index: 100;
   -webkit-box-shadow: 0px 1px 2px 0px rgba(33, 37, 41, 0.1);
