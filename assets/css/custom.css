@@ -1,0 +1,28 @@
+/*
+ * Custom SRMS layout fixes.
+ * (1) Keep the navbar flush with the top edge.
+ * (2) Allow the main wrapper to grow and scroll naturally.
+ * (3) Push page content below the fixed header without collapsing margins.
+ */
+body {
+    margin: 0;
+}
+
+body #wrapper {
+    height: auto;
+    min-height: 100vh;
+    width: 100%;
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+
+body .navbar-custom {
+    top: 0;
+}
+
+body .content-page {
+    margin-top: 0;
+    padding-top: 70px;
+    padding-bottom: 80px;
+    overflow: visible;
+}
