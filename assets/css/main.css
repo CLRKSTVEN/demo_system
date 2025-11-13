@@ -207,8 +207,10 @@ iframe {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  align-items: center;
+  align-items: flex-start;
   background: #f2f2f2;
+  padding-top: 0;
+  padding-bottom: 30px;
 }
 
 

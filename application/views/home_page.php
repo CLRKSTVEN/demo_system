@@ -48,11 +48,27 @@
 			font-size: 12px;
 			color: #999999;
 		}
+
+		/* Keep the login layout flush with the top so the scrollbar doesn't reveal a header band */
+		html,
+		body {
+			background-color: #f2f2f2;
+			scrollbar-width: none;
+		}
+
+		body {
+			-ms-overflow-style: none;
+		}
+
+		html::-webkit-scrollbar,
+		body::-webkit-scrollbar {
+			display: none;
+		}
 	</style>
 
 </head>
 
-<body style="background-color: #666666;">
+<body>
 
 	<div class="limiter">
 		<div class="container-login100">
@@ -158,6 +174,84 @@
 	<script src="<?= base_url(); ?>assets/vendor/countdowntime/countdowntime.js"></script>
 	<!--===============================================================================================-->
 	<script src="<?= base_url(); ?>assets/js/main.js"></script>
+	<script>
+		// Snap the login page to the bottom so the top band stays hidden on load
+		(function() {
+			var isSnapping = false;
+
+			function scrollToBottom() {
+				var bottomPosition = getBottomPosition();
+				if (bottomPosition <= 0) {
+					return;
+				}
+
+				isSnapping = true;
+				window.scrollTo({
+					top: bottomPosition,
+					behavior: 'auto'
+				});
+				setTimeout(function() {
+					isSnapping = false;
+				}, 0);
+			}
+
+			function getBottomPosition() {
+				var fullHeight = Math.max(
+					document.body.scrollHeight,
+					document.documentElement.scrollHeight
+				);
+				return Math.max(fullHeight - window.innerHeight, 0);
+			}
+
+			function lockAtBottom(event) {
+				if (isSnapping) {
+					return;
+				}
+
+				var bottomPosition = getBottomPosition();
+				if (bottomPosition <= 0) {
+					return;
+				}
+
+				if (window.scrollY < bottomPosition) {
+					if (event && typeof event.preventDefault === 'function') {
+						event.preventDefault();
+					}
+					scrollToBottom();
+				}
+			}
+
+			window.addEventListener('load', function() {
+				setTimeout(scrollToBottom, 150);
+			});
+
+			window.addEventListener('pageshow', function(evt) {
+				if (evt.persisted) {
+					setTimeout(scrollToBottom, 50);
+				}
+			});
+
+			window.addEventListener('resize', function() {
+				setTimeout(scrollToBottom, 0);
+			});
+
+			window.addEventListener('scroll', lockAtBottom);
+
+			window.addEventListener('wheel', function(event) {
+				if (event.deltaY < 0) {
+					lockAtBottom(event);
+				}
+			}, {
+				passive: false
+			});
+
+			window.addEventListener('touchmove', function(event) {
+				lockAtBottom(event);
+			}, {
+				passive: false
+			});
+		})();
+	</script>
 
 </body>
 
