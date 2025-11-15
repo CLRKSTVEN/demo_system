@@ -1963,8 +1963,6 @@ function profileEntry()
     $data['ethnicity'] = $this->SettingsModel->get_ethnicity();
     $data['religion'] = $this->SettingsModel->get_religion();
     $data['prevschool'] = $this->SettingsModel->get_prevschool();
-    $data['provinces'] = $this->StudentModel->get_provinces();
-    $data['addressData'] = $this->StudentModel->get_address_data();
 
     // Auto-generate the Student Number
     $data['autoStudentNumber'] = $this->StudentModel->generate_student_number();

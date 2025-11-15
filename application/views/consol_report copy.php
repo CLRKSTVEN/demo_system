@@ -28,8 +28,7 @@
                                         <strong>CONSOLIDATED REPORT OF GRADES</strong><br>
                                         <?php
                                         // Figure out current grading code -> which lock field to inspect
-                                        $grading_code  = $this->input->post('grading'); // PGrade / MGrade / PFinalGrade / FGrade / ALL
-                                        $is_all_grading = ($grading_code === 'ALL');
+                                        $grading_code  = $this->input->post('grading'); // PGrade / MGrade / PFinalGrade / FGrade
                                         $period_field  = null;
                                         switch ($grading_code) {
                                             case 'PGrade':
@@ -44,9 +43,6 @@
                                             case 'FGrade':
                                                 $period_field = 'lock_final';
                                                 break;
-                                            case 'ALL':
-                                                $period_field = '__ALL__';
-                                                break;
                                         }
                                         // Compute if ANY subject is locked for this grading
                                         $anyLockedThisPeriod = false;
@@ -54,15 +50,7 @@
                                             foreach ($sub as $r) {
                                                 $code  = $r->SubjectCode ?? '';
                                                 $locks = $locks_map[$code] ?? null;
-                                                if (!$locks) {
-                                                    continue;
-                                                }
-                                                if ($period_field === '__ALL__') {
-                                                    if (!empty($locks->lock_prelim) || !empty($locks->lock_midterm) || !empty($locks->lock_prefinal) || !empty($locks->lock_final)) {
-                                                        $anyLockedThisPeriod = true;
-                                                        break;
-                                                    }
-                                                } elseif (!empty($locks->{$period_field})) {
+                                                if ($locks && !empty($locks->{$period_field})) {
                                                     $anyLockedThisPeriod = true;
                                                     break;
                                                 }
@@ -74,7 +62,7 @@
                                         <span class="badge badge-purple mb-3">
                                             SY <?= $this->session->userdata('sy'); ?>
                                         </span>
-                                        <span id="semester-lock-state" class="badge <?= $semBadgeClass; ?> mb-3 ml-1" title="<?= $anyLockedThisPeriod ? 'Locked grading(s)' : 'Open grading(s)'; ?>">
+                                        <span id="semester-lock-state" class="badge <?= $semBadgeClass; ?> mb-3 ml-1" title="<?= $anyLockedThisPeriod ? 'Some subjects locked for this grading' : 'All subjects open for this grading'; ?>">
                                             <?= $this->session->userdata('semester'); ?>
                                         </span>
 
@@ -99,78 +87,11 @@
 
                                     <!-- Filter Form -->
                                     <style>
-                                        /* Put this in the same <style> block where your table CSS is */
-
-                                        /* Force landscape so wide table fits */
-                                        @page {
-                                            size: A4 landscape;
-                                            margin: 10mm;
-                                        }
-
                                         @media print {
-
-                                            /* Hide navigation / chrome */
-                                            .navbar-custom,
-                                            .left-side-menu,
-                                            .right-bar,
-                                            .right-bar-toggle,
-                                            .footer,
-                                            .no-print,
-                                            .d-print-none {
+                                            .no-print {
                                                 display: none !important;
                                             }
-
-                                            /* Use full width for content (remove sidebar margin) */
-                                            #wrapper {
-                                                padding-top: 0 !important;
-                                            }
-
-                                            .content-page {
-                                                margin-left: 0 !important;
-                                            }
-
-                                            .content-page .content,
-                                            .container-fluid,
-                                            .card,
-                                            .card-body {
-                                                margin: 0 !important;
-                                                padding: 0 !important;
-                                            }
-
-                                            /* Table/layout tweaks so nothing is cut */
-                                            .table-responsive {
-                                                overflow: visible !important;
-                                                width: 100% !important;
-                                            }
-
-                                            #consol-table {
-                                                width: 100% !important;
-                                            }
-
-                                            #consol-table thead th,
-                                            .sticky-left {
-                                                position: static !important;
-                                                /* disable sticky on print */
-                                            }
-
-                                            #consol-table th,
-                                            #consol-table td {
-                                                font-size: 9px;
-                                                padding: 2px 3px;
-                                                white-space: normal;
-                                            }
-
-                                            html,
-                                            body {
-                                                width: 100%;
-                                                margin: 0;
-                                                padding: 0;
-                                                zoom: 0.8;
-                                                /* adjust (0.7–0.9) if still clipped */
-                                                -webkit-print-color-adjust: exact;
-                                            }
                                         }
-
 
                                         .print-only {
                                             display: none;
@@ -188,7 +109,6 @@
 
                                         .subject-th {
                                             min-width: 140px;
-                                            font-size: 11px;
                                         }
 
                                         .d-none {
@@ -199,79 +119,18 @@
                                             gap: 6px;
                                         }
 
-                                        .subject-th .font-weight-bold {
-                                            font-size: 11px;
-                                        }
-
-                                        .grade-chip {
-                                            display: flex;
-                                            justify-content: center;
-                                            align-items: center;
-                                            border: 1px solid #e9ecef;
-                                            border-radius: 4px;
-                                            padding: 2px 6px;
-                                            font-size: 11px;
-                                            line-height: 1.2;
-                                            margin-bottom: 2px;
-                                            background: #fff;
-                                        }
-
-                                        .grade-chip--plain {
-                                            border: none;
-                                            background: transparent;
-                                            padding: 0;
-                                            justify-content: center;
-                                            font-size: 12px;
-                                        }
-
-                                        .grade-chip span {
-                                            font-weight: 600;
-                                            margin-right: 6px;
-                                            text-transform: uppercase;
-                                        }
-
-                                        .grade-chip--plain span {
-                                            display: none;
-                                        }
-
-                                        .grade-chip strong {
-                                            font-weight: 600;
-                                            display: block;
-                                            text-align: center;
-                                        }
-
-                                        .grade-chip--plain strong {
-                                            font-size: 11px;
-                                        }
-
-                                        .grade-cell {
-                                            min-width: 120px;
-                                            text-align: center;
-                                            font-size: 11px;
-                                        }
-
-                                        #consol-table {
-                                            position: relative;
-                                        }
-
-                                        #consol-table thead th {
-                                            position: sticky;
-                                            top: 0;
-                                            background: #eef2f7;
-                                            z-index: 7;
-                                        }
-
                                         .lock-pills {
                                             display: flex;
-                                            flex-wrap: wrap;
+                                            align-items: center;
                                             gap: 6px;
-                                            white-space: normal;
+                                            white-space: nowrap;
                                         }
 
-                                        .lock-period {
-                                            display: inline-flex;
-                                            align-items: center;
-                                            gap: 4px;
+                                        @media (max-width: 640px) {
+                                            .lock-pills {
+                                                flex-wrap: wrap;
+                                                white-space: normal;
+                                            }
                                         }
 
                                         .lock-pill {
@@ -285,9 +144,6 @@
                                             font-size: 11px;
                                             line-height: 1;
                                             margin: 0;
-                                            cursor: pointer;
-                                            user-select: none;
-                                            background: #fff;
                                         }
 
                                         .lock-pill.open {
@@ -298,65 +154,43 @@
                                             background: #fdecea;
                                         }
 
-                                        .lock-icon-btn {
-                                            display: inline-flex;
+                                        .lock-mini {
+                                            display: inline-flex !important;
                                             align-items: center;
                                             justify-content: center;
                                             width: 22px;
                                             height: 22px;
+                                            padding: 0 !important;
                                             border: 1px solid #bbb;
-                                            border-radius: 50%;
-                                            font-size: 11px;
+                                            border-radius: 9999px;
                                             background: #fff;
-                                            cursor: pointer;
+                                            line-height: 1;
+                                            vertical-align: middle;
                                         }
 
-                                        .lock-icon-btn.lock-btn.active {
-                                            background: #fdecea;
-                                            border-color: #f5b5b5;
+                                        .lock-pills .fa,
+                                        .lock-mini .fa {
+                                            color: #000 !important;
+                                            font-size: 12px;
                                         }
 
-                                        .lock-icon-btn.unlock-btn.active {
-                                            background: #e9f7ef;
-                                            border-color: #9ccfa8;
+                                        .lock-pill,
+                                        .lock-mini,
+                                        .lock-mini .fa {
+                                            cursor: pointer !important;
+                                            user-select: none;
+                                        }
+
+                                        .lock-pill:hover {
+                                            filter: brightness(0.95);
+                                        }
+
+                                        .lock-mini:hover {
+                                            box-shadow: 0 0 0 1px rgba(0, 0, 0, .15) inset;
                                         }
 
                                         .subject-th .lock-pills {
                                             margin-top: 2px;
-                                        }
-
-                                        .sticky-left {
-                                            position: sticky;
-                                            background: #fff;
-                                            z-index: 5;
-                                        }
-
-                                        .thead-light .sticky-left {
-                                            background: #eef2f7;
-                                            z-index: 6;
-                                        }
-
-                                        .sticky-left-1 {
-                                            left: 0;
-                                            min-width: 55px;
-                                        }
-
-                                        .sticky-left-2 {
-                                            left: 60px;
-                                            min-width: 230px;
-                                            font-size: 11px;
-                                        }
-
-                                        .col-fullname {
-                                            min-width: 230px;
-                                            font-size: 11px;
-                                        }
-
-                                        .col-average,
-                                        .col-equivalent {
-                                            text-align: center;
-                                            min-width: 90px;
-                                            font-size: 11px;
                                         }
                                     </style>
 
@@ -369,11 +203,10 @@
                                                 <label>Grading</label>
                                                 <select class="form-control" name="grading" required>
                                                     <option value="">Select Grading</option>
-                                                    <option value="PGrade" <?= set_select('grading', 'PGrade'); ?>>1st</option>
-                                                    <option value="MGrade" <?= set_select('grading', 'MGrade'); ?>>2nd</option>
-                                                    <option value="PFinalGrade" <?= set_select('grading', 'PFinalGrade'); ?>>3rd</option>
-                                                    <option value="FGrade" <?= set_select('grading', 'FGrade'); ?>>4th</option>
-                                                    <option value="ALL" <?= set_select('grading', 'ALL'); ?>>All Grading</option>
+                                                    <option value="PGrade" <?= set_select('grading', 'PGrade'); ?>>1st Grading</option>
+                                                    <option value="MGrade" <?= set_select('grading', 'MGrade'); ?>>2nd Grading</option>
+                                                    <option value="PFinalGrade" <?= set_select('grading', 'PFinalGrade'); ?>>3rd Grading</option>
+                                                    <option value="FGrade" <?= set_select('grading', 'FGrade'); ?>>4th Grading</option>
                                                 </select>
                                             </div>
 
@@ -445,7 +278,6 @@
                                     </div>
                                     <!-- /Filter Form -->
 
-                                    <?php $visiblePeriodSlugsForJs = []; ?>
                                     <?php if ($this->input->post('submit')): ?>
                                         <!-- Letterhead (print only) -->
                                         <?php if (isset($so->letterhead_web) && $so->letterhead_web): ?>
@@ -453,36 +285,15 @@
                                         <?php endif; ?>
 
                                         <?php
-                                        $grading_meta = [
-                                            'PGrade'      => ['label' => '1st', 'slug' => 'prelim', 'lock_field' => 'lock_prelim'],
-                                            'MGrade'      => ['label' => '2nd', 'slug' => 'midterm', 'lock_field' => 'lock_midterm'],
-                                            'PFinalGrade' => ['label' => '3rd', 'slug' => 'prefinal', 'lock_field' => 'lock_prefinal'],
-                                            'FGrade'      => ['label' => '4th', 'slug' => 'final', 'lock_field' => 'lock_final'],
-                                        ];
                                         $grade_map = [
                                             'PGrade'      => '1st',
                                             'MGrade'      => '2nd',
                                             'PFinalGrade' => '3rd',
-                                            'FGrade'      => '4th',
-                                            'ALL'         => 'All',
+                                            'FGrade'      => '4th'
                                         ];
-                                        $grading_code    = $this->input->post('grading');
-                                        $is_all_grading  = ($grading_code === 'ALL');
-                                        $grading_label   = $grade_map[$grading_code] ?? '';
-                                        $is_shs_flag     = !empty($is_shs);
-                                        $period_keys_for_level = $is_shs_flag ? ['PGrade', 'MGrade'] : array_keys($grading_meta);
-                                        $visible_period_keys = $is_all_grading ? $period_keys_for_level : (in_array($grading_code, $period_keys_for_level, true) ? [$grading_code] : []);
-                                        if (empty($visible_period_keys) && !empty($period_keys_for_level)) {
-                                            $visible_period_keys = [$period_keys_for_level[0]];
-                                        }
-                                        $visiblePeriodSlugsForJs = [];
-                                        foreach ($visible_period_keys as $key) {
-                                            if (isset($grading_meta[$key])) {
-                                                $visiblePeriodSlugsForJs[] = $grading_meta[$key]['slug'];
-                                            }
-                                        }
-                                        $visiblePeriodCount = count($visible_period_keys);
-                                        $show_chip_labels = $visiblePeriodCount > 1;
+                                        $grading_code  = $this->input->post('grading');
+                                        $grading_label = $grade_map[$grading_code] ?? '';
+                                        $is_shs_flag   = !empty($is_shs);
 
                                         if (!function_exists('norm_sex')) {
                                             function norm_sex($val)
@@ -520,13 +331,7 @@
                                         <!-- Header Summary -->
                                         <div class="d-flex justify-content-between align-items-start mb-2">
                                             <div>
-                                                <?php
-                                                $grading_text = '';
-                                                if (!empty($grading_label)) {
-                                                    $grading_text = ($grading_label === 'All') ? 'All Gradings' : ($grading_label . ' Grading');
-                                                }
-                                                ?>
-                                                <h5 class="mb-1">Consolidated Report of Grades<?= $grading_text ? ' (' . $grading_text . ')' : ''; ?></h5>
+                                                <h5 class="mb-1">Consolidated Report of Grades (<?= $grading_label; ?> Grading)</h5>
                                                 <div style="font-size:14px">
                                                     <?= isset($gl) ? $gl : ''; ?><?= isset($sec) ? ', ' . $sec : ''; ?>
                                                     <?php if ($is_shs_flag && !empty($strand)): ?>
@@ -584,16 +389,20 @@
                                                 <table id="consol-table" class="table table-bordered" style="border-collapse:collapse;border-spacing:0;width:100%;">
                                                     <thead class="thead-light">
                                                         <tr>
-                                                            <th class="sticky-left sticky-left-1">#</th>
-                                                            <th class="sticky-left sticky-left-2 col-fullname">Fullname</th>
+                                                            <th>#</th>
+                                                            <th>Fullname</th>
 
                                                             <?php if (!empty($sub)): foreach ($sub as $r): ?>
                                                                     <?php
                                                                     $code = $r->SubjectCode ?? '';
                                                                     $desc = $sub_desc_map[$code] ?? ($r->Description ?? '');
                                                                     $sid  = subj_id($code);
-                                                                    $locks = $locks_map[$code] ?? (object)[];
+                                                                    $locks = $locks_map[$code] ?? null;
 
+                                                                    $pre = !empty($locks->lock_prelim);
+                                                                    $mid = !empty($locks->lock_midterm);
+                                                                    $preF = !empty($locks->lock_prefinal);
+                                                                    $fin = !empty($locks->lock_final);
                                                                     ?>
                                                                     <th class="subject-th">
                                                                         <div class="d-flex flex-column">
@@ -601,39 +410,23 @@
                                                                                 <?= htmlspecialchars($desc ?: $code, ENT_QUOTES, 'UTF-8'); ?>
                                                                             </div>
                                                                             <!-- Lock pills (no-print) -->
-                                                                            <?php if (!$is_all_grading): ?>
-                                                                                <div class="lock-pills no-print" data-code="<?= htmlspecialchars($code, ENT_QUOTES, 'UTF-8'); ?>" data-desc="<?= htmlspecialchars($desc, ENT_QUOTES, 'UTF-8'); ?>" data-sid="<?= $sid; ?>">
-                                                                                    <?php foreach ($visible_period_keys as $period_key):
-                                                                                        if (empty($grading_meta[$period_key])) {
-                                                                                            continue;
-                                                                                        }
-                                                                                        $meta = $grading_meta[$period_key];
-                                                                                        $slug = $meta['slug'];
-                                                                                        $lock_field = $meta['lock_field'];
-                                                                                        $isLocked = !empty($locks->{$lock_field});
-                                                                                        $wrapId = 'lk-wrap-' . $sid . '-' . $slug;
-                                                                                    ?>
-                                                                                        <div class="lock-period" id="<?= $wrapId; ?>">
-                                                                                            <span class="lock-pill <?= $isLocked ? 'locked' : 'open'; ?>" id="lk-<?= $sid; ?>-<?= $slug; ?>" data-period="<?= $slug; ?>" data-next="<?= $isLocked ? 'unlock' : 'lock'; ?>" title="<?= $meta['label']; ?>: <?= $isLocked ? 'Locked' : 'Open'; ?>">
-                                                                                                <?= $meta['label']; ?>
-                                                                                            </span>
-                                                                                            <span class="lock-icon-btn lock-btn <?= $isLocked ? 'active' : ''; ?>" data-period="<?= $slug; ?>" data-action="lock" title="Lock <?= $meta['label']; ?> grading">
-                                                                                                <i class="fa fa-lock"></i>
-                                                                                            </span>
-                                                                                            <span class="lock-icon-btn unlock-btn <?= $isLocked ? '' : 'active'; ?>" data-period="<?= $slug; ?>" data-action="unlock" title="Unlock <?= $meta['label']; ?> grading">
-                                                                                                <i class="fa fa-unlock"></i>
-                                                                                            </span>
-                                                                                        </div>
-                                                                                    <?php endforeach; ?>
-                                                                                </div>
-                                                                            <?php endif; ?>
+                                                                            <div class="lock-pills no-print" data-code="<?= htmlspecialchars($code, ENT_QUOTES, 'UTF-8'); ?>" data-desc="<?= htmlspecialchars($desc, ENT_QUOTES, 'UTF-8'); ?>" data-sid="<?= $sid; ?>">
+                                                                                <span class="lock-pill <?= $pre ? 'locked' : 'open'; ?>" id="lk-<?= $sid; ?>-prelim" data-period="prelim" data-next="<?= $pre ? 'unlock' : 'lock'; ?>" title="1st Grading: <?= $pre ? 'Locked' : 'Open'; ?>">1st</span>
+                                                                                <span class="lock-pill <?= $mid ? 'locked' : 'open'; ?>" id="lk-<?= $sid; ?>-midterm" data-period="midterm" data-next="<?= $mid ? 'unlock' : 'lock'; ?>" title="2nd Grading: <?= $mid ? 'Locked' : 'Open'; ?>">2nd</span>
+                                                                                <?php if (!$is_shs_flag): ?>
+                                                                                    <span class="lock-pill <?= $preF ? 'locked' : 'open'; ?>" id="lk-<?= $sid; ?>-prefinal" data-period="prefinal" data-next="<?= $preF ? 'unlock' : 'lock'; ?>" title="3rd Grading: <?= $preF ? 'Locked' : 'Open'; ?>">3rd</span>
+                                                                                    <span class="lock-pill <?= $fin ? 'locked' : 'open'; ?>" id="lk-<?= $sid; ?>-final" data-period="final" data-next="<?= $fin ? 'unlock' : 'lock'; ?>" title="4th Grading: <?= $fin ? 'Locked' : 'Open'; ?>">4th</span>
+                                                                                <?php endif; ?>
+                                                                                <a href="#" class="badge badge-outline-danger lock-sub-all lock-mini" data-period="all" data-action="lock" title="Lock ALL periods for this subject"><i class="fa fa-lock"></i></a>
+                                                                                <a href="#" class="badge badge-outline-success lock-sub-all lock-mini" data-period="all" data-action="unlock" title="Unlock ALL periods for this subject"><i class="fa fa-unlock"></i></a>
+                                                                            </div>
                                                                         </div>
                                                                     </th>
                                                             <?php endforeach;
                                                             endif; ?>
 
-                                                            <th class="col-average">Average</th>
-                                                            <th class="col-equivalent">Equivalent</th>
+                                                            <th>Average</th>
+                                                            <th>Equivalent</th>
                                                         </tr>
                                                     </thead>
                                                     <tbody>
@@ -649,8 +442,8 @@
 
                                                             <?php foreach ($grouped[$SEX] as $srow): ?>
                                                                 <tr>
-                                                                    <td class="sticky-left sticky-left-1"><?= $count++; ?></td>
-                                                                    <td class="sticky-left sticky-left-2 col-fullname" style="text-align:left">
+                                                                    <td><?= $count++; ?></td>
+                                                                    <td style="text-align:left">
                                                                         <?= htmlspecialchars(($srow->LastName ?? '') . ', ' . ($srow->FirstName ?? ''), ENT_QUOTES, 'UTF-8'); ?>
                                                                     </td>
 
@@ -680,42 +473,9 @@
                                                                                 );
                                                                             }
 
-                                                                            $gradeChips = [];
-                                                                            $chipSum = 0.0;
-                                                                            $chipCount = 0;
-                                                                            if ($sg && !empty($visible_period_keys)) {
-                                                                                foreach ($visible_period_keys as $period_key) {
-                                                                                    if (empty($grading_meta[$period_key])) {
-                                                                                        continue;
-                                                                                    }
-                                                                                    $fieldName = $period_key;
-                                                                                    $val = $sg->$fieldName ?? null;
-                                                                                    if ($val === '' || $val === null) {
-                                                                                        continue;
-                                                                                    }
-                                                                                    $numVal = (float) $val;
-                                                                                    $gradeChips[] = [
-                                                                                        'label' => $grading_meta[$period_key]['label'],
-                                                                                        'value' => $numVal,
-                                                                                    ];
-                                                                                    if ($numVal > 0) {
-                                                                                        $chipSum += $numVal;
-                                                                                        $chipCount++;
-                                                                                    }
-                                                                                }
-                                                                            }
-
                                                                             $raw = null;
-                                                                            if ($chipCount > 0) {
-                                                                                if ($is_all_grading) {
-                                                                                    if ($sg && isset($sg->FGrade) && $sg->FGrade !== '' && $sg->FGrade !== null) {
-                                                                                        $raw = (float) $sg->FGrade;
-                                                                                    } else {
-                                                                                        $raw = $chipSum / $chipCount;
-                                                                                    }
-                                                                                } else {
-                                                                                    $raw = $chipSum / $chipCount;
-                                                                                }
+                                                                            if ($sg && isset($sg->$grading_code) && $sg->$grading_code !== '' && $sg->$grading_code !== null) {
+                                                                                $raw = (float) $sg->$grading_code;
                                                                             }
 
                                                                             if ($raw !== null && $raw > 0) {
@@ -723,18 +483,7 @@
                                                                                 $cnt++;
                                                                             }
                                                                     ?>
-                                                                            <td class="grade-cell">
-                                                                                <?php if (!empty($gradeChips)): ?>
-                                                                                    <?php foreach ($gradeChips as $chip): ?>
-                                                                                        <div class="grade-chip<?= $show_chip_labels ? '' : ' grade-chip--plain'; ?>">
-                                                                                            <?php if ($show_chip_labels): ?>
-                                                                                                <span><?= $chip['label']; ?></span>
-                                                                                            <?php endif; ?>
-                                                                                            <strong><?= number_format($chip['value'], 0); ?></strong>
-                                                                                        </div>
-                                                                                    <?php endforeach; ?>
-                                                                                <?php endif; ?>
-                                                                            </td>
+                                                                            <td><?= ($raw !== null) ? number_format($raw, 0) : ''; ?></td>
                                                                     <?php endforeach;
                                                                     endif;
 
@@ -747,8 +496,8 @@
                                                                         $avgEq  = '';
                                                                     }
                                                                     ?>
-                                                                    <td class="col-average"><?= $avg2dp; ?></td>
-                                                                    <td class="col-equivalent"><?= $avgEq;   ?></td>
+                                                                    <td><?= $avg2dp; ?></td>
+                                                                    <td><?= $avgEq;   ?></td>
                                                                 </tr>
                                                         <?php endforeach;
                                                         endforeach; ?>
@@ -948,27 +697,23 @@
                     const map = [{
                             id: '#lk-' + sid + '-prelim',
                             val: locks.lock_prelim,
-                            title: '1st Grading: ',
-                            slug: 'prelim'
+                            title: '1st Grading: '
                         },
                         {
                             id: '#lk-' + sid + '-midterm',
                             val: locks.lock_midterm,
-                            title: '2nd Grading: ',
-                            slug: 'midterm'
+                            title: '2nd Grading: '
                         }
                     ];
                     if (!isShs) {
                         map.push({
                             id: '#lk-' + sid + '-prefinal',
                             val: locks.lock_prefinal,
-                            title: '3rd Grading: ',
-                            slug: 'prefinal'
+                            title: '3rd Grading: '
                         }, {
                             id: '#lk-' + sid + '-final',
                             val: locks.lock_final,
-                            title: '4th Grading: ',
-                            slug: 'final'
+                            title: '4th Grading: '
                         });
                     }
                     map.forEach(m => {
@@ -978,12 +723,6 @@
                         $b.removeClass('open locked').addClass(locked ? 'locked' : 'open');
                         $b.attr('data-next', locked ? 'unlock' : 'lock');
                         $b.attr('title', m.title + (locked ? 'Locked' : 'Open'));
-
-                        const $wrap = $('#lk-wrap-' + sid + '-' + m.slug);
-                        if ($wrap.length) {
-                            $wrap.find('.lock-icon-btn.lock-btn').toggleClass('active', locked);
-                            $wrap.find('.lock-icon-btn.unlock-btn').toggleClass('active', !locked);
-                        }
                     });
                 }
                 window.updateSubjectBadges = updateSubjectBadges;
@@ -1026,7 +765,7 @@
                     postToggle(code, desc, period, action, sid);
                 });
 
-                $(document).on('click', '.lock-icon-btn', function(e) {
+                $(document).on('click', '.lock-sub-all', function(e) {
                     e.preventDefault();
                     const $wrap = $(this).closest('.lock-pills');
                     const code = $wrap.data('code');
@@ -1038,22 +777,27 @@
                 });
 
                 // ---------- Semester badge recompute after lock changes ----------
-                var CURRENT_PERIODS = <?= json_encode($visiblePeriodSlugsForJs); ?> || [];
+                var CURRENT_PERIOD = (function() {
+                    var g = <?= json_encode($grading_code ?? ''); ?>;
+                    if (g === 'PGrade') return 'prelim';
+                    if (g === 'MGrade') return 'midterm';
+                    if (g === 'PFinalGrade') return 'prefinal';
+                    if (g === 'FGrade') return 'final';
+                    return null;
+                })();
 
                 function recomputeSemesterBadge() {
-                    if (!CURRENT_PERIODS.length) return;
-                    var anyLocked = CURRENT_PERIODS.some(function(periodSlug) {
-                        return $('.lock-pill[data-period="' + periodSlug + '"]').toArray()
-                            .some(function(el) {
-                                return el.classList.contains('locked');
-                            });
-                    });
+                    if (!CURRENT_PERIOD) return;
+                    var anyLocked = $('.lock-pill[data-period="' + CURRENT_PERIOD + '"]').toArray()
+                        .some(function(el) {
+                            return el.classList.contains('locked');
+                        });
 
                     var $sem = $('#semester-lock-state');
                     if (!$sem.length) return;
                     $sem.removeClass('badge-success badge-danger')
                         .addClass(anyLocked ? 'badge-danger' : 'badge-success')
-                        .attr('title', anyLocked ? 'Locked grading(s)' : 'Open grading(s)');
+                        .attr('title', anyLocked ? 'Some subjects locked for this grading' : 'All subjects open for this grading');
                 }
 
                 recomputeSemesterBadge();
@@ -1091,14 +835,12 @@
                     var $src = $('#consol-table');
                     if (!$src.length) return;
 
-                    // Clone the table for export (no sex-divider rows)
                     var $clone = $src.clone();
-                    $clone.attr('id', 'consol-table-export').removeClass('table-bordered').addClass('d-none');
+                    $clone.attr('id', 'consol-table-export').addClass('d-none');
 
                     $clone.find('tbody tr').filter(function() {
                         var $tds = $(this).children('td');
-                        return $(this).hasClass('sex-divider') ||
-                            ($tds.length === 1 && $tds.attr('colspan'));
+                        return $(this).hasClass('sex-divider') || ($tds.length === 1 && $tds.attr('colspan'));
                     }).remove();
 
                     $src.after($clone);
@@ -1126,15 +868,11 @@
                         dom: 'Bfrtip',
                         buttons: (function() {
                             var arr = [];
-
-                            // CSV (always available)
                             arr.push({
                                 extend: 'csvHtml5',
                                 title: exportTitle,
                                 filename: exportFilename
                             });
-
-                            // Excel (only if JSZip is loaded)
                             if (typeof JSZip !== 'undefined') {
                                 arr.push({
                                     extend: 'excelHtml5',
@@ -1142,8 +880,6 @@
                                     filename: exportFilename
                                 });
                             }
-
-                            // PDF (only if pdfMake is loaded)
                             if (typeof pdfMake !== 'undefined') {
                                 arr.push({
                                     extend: 'pdfHtml5',
@@ -1160,42 +896,31 @@
                                     }
                                 });
                             }
-
                             return arr;
                         })()
                     });
 
-                    // Wire export buttons
-                    $('#btnExportExcel').off('click').on('click', function(e) {
+                    $('#btnExportExcel').on('click', function(e) {
                         e.preventDefault();
-                        if (!window.dtExport) return;
                         var b = dtExport.button('.buttons-excel');
                         if (b.any()) b.trigger();
                         else alert('Excel export unavailable. (JSZip not loaded?)');
                     });
-
-                    $('#btnExportPDF').off('click').on('click', function(e) {
+                    $('#btnExportPDF').on('click', function(e) {
                         e.preventDefault();
-                        if (!window.dtExport) return;
                         var b = dtExport.button('.buttons-pdf');
                         if (b.any()) b.trigger();
                         else alert('PDF export unavailable. (pdfMake not loaded?)');
                     });
-
-                    $('#btnExportCSV').off('click').on('click', function(e) {
+                    $('#btnExportCSV').on - click = null;
+                    $('#btnExportCSV').on('click', function(e) {
                         e.preventDefault();
-                        if (!window.dtExport) return;
                         var b = dtExport.button('.buttons-csv');
                         if (b.any()) b.trigger();
                         else alert('CSV export unavailable.');
                     });
 
-                    console.log(
-                        'Export DT ready. thead cols=',
-                        $('#consol-table-export thead th').length,
-                        'buttons=',
-                        dtExport.buttons().count()
-                    );
+                    console.log('Export DT ready. thead cols=', $('#consol-table-export thead th').length, 'buttons=', dtExport.buttons().count());
                 });
             </script>
         <?php endif; ?>

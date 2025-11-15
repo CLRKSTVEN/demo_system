@@ -122,42 +122,42 @@ class Ren_model extends CI_Model
         return $this->db->insert('o_users', $data);
     }
 
-// Ren_model.php
+    // Ren_model.php
 
-public function atrail_insert($desc, $resource = 'reg', $studno = null)
-{
-    date_default_timezone_set('Asia/Manila');
+    public function atrail_insert($desc, $resource = 'reg', $studno = null)
+    {
+        date_default_timezone_set('Asia/Manila');
 
-    // Prefer explicit studno, else session studentNumber/username, else placeholder
-    $rawSNo =
-        ($studno ?: (
-            $this->session->userdata('studentNumber')
-            ?? $this->session->userdata('StudentNumber')
-            ?? $this->session->userdata('username')
-            ?? ''
-        ));
+        // Prefer explicit studno, else session studentNumber/username, else placeholder
+        $rawSNo =
+            ($studno ?: (
+                $this->session->userdata('studentNumber')
+                ?? $this->session->userdata('StudentNumber')
+                ?? $this->session->userdata('username')
+                ?? ''
+            ));
 
-    // Ensure NOT NULL; if still empty, use a constant placeholder
-    if ($rawSNo === '' || $rawSNo === null) {
-        $rawSNo = 'SYSTEM'; // or 'UNKNOWN'
+        // Ensure NOT NULL; if still empty, use a constant placeholder
+        if ($rawSNo === '' || $rawSNo === null) {
+            $rawSNo = 'SYSTEM'; // or 'UNKNOWN'
+        }
+
+        // If you really need hashing, only hash when non-empty:
+        // $atSNo = sha1($rawSNo);
+        // If your atrail.atSNo stores plain text, keep it raw:
+        $atSNo = $rawSNo;
+
+        $data = [
+            'atDesc' => (string)$desc,
+            'atDate' => date('Y-m-d'),
+            // choose either 24h or 12h, not both:
+            'atTime' => date('h:i:s A'), // e.g., 02:55:02 PM
+            'atRes'  => (string)$resource,
+            'atSNo'  => $atSNo,          // guaranteed non-null now
+        ];
+
+        $this->db->insert('atrail', $data);
     }
-
-    // If you really need hashing, only hash when non-empty:
-    // $atSNo = sha1($rawSNo);
-    // If your atrail.atSNo stores plain text, keep it raw:
-    $atSNo = $rawSNo;
-
-    $data = [
-        'atDesc' => (string)$desc,
-        'atDate' => date('Y-m-d'),
-        // choose either 24h or 12h, not both:
-        'atTime' => date('h:i:s A'), // e.g., 02:55:02 PM
-        'atRes'  => (string)$resource,
-        'atSNo'  => $atSNo,          // guaranteed non-null now
-    ];
-
-    $this->db->insert('atrail', $data);
-}
 
 
     public function enroll_insert()
@@ -476,98 +476,81 @@ public function atrail_insert($desc, $resource = 'reg', $studno = null)
         $this->db->insert('registration', $data);
     }
 
-public function getProfile()
-{
-    $sy = $this->session->userdata('sy'); // ✅ Get current SY from session
+    public function getProfile()
+    {
+        $sy = $this->session->userdata('sy');
 
-    return $this->db
-        ->select('studeprofile.*, semesterstude.*')
-        ->from('studeprofile')
-        ->join('semesterstude', 'studeprofile.StudentNumber = semesterstude.StudentNumber', 'left')
-        ->where('semesterstude.SY', $sy) // ✅ Filter by current SY
-        ->order_by('studeprofile.LastName', 'ASC')
-        ->get()
-        ->result();
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+        return $this->db
+            ->select('studeprofile.*, semesterstude.*')
+            ->from('studeprofile')
+            ->join('semesterstude', 'studeprofile.StudentNumber = semesterstude.StudentNumber', 'left')
+            ->where('semesterstude.SY', $sy)
+            ->order_by('studeprofile.LastName', 'ASC')
+            ->get()
+            ->result();
+    }
 
 // Ren_model.php
 
 // students with registration for a given SY (for the picker)
 // Ren_model.php
 
-/**
- * All students with registration in a given SY (no filter)
- */
-public function get_students_with_registration($sy)
-{
-    $this->db->select('DISTINCT r.StudentNumber, s.LastName, s.FirstName, s.MiddleName', false);
-    $this->db->from('registration r');
-    $this->db->join('studeprofile s', 's.StudentNumber = r.StudentNumber', 'left');
-    $this->db->where('r.SY', $sy);
-    $this->db->order_by('s.LastName', 'ASC');
-    return $this->db->get()->result();
-}
+    /**
+     * All students with registration in a given SY (no filter)
+     */
+    public function get_students_with_registration($sy)
+    {
+        $this->db->select('DISTINCT r.StudentNumber, s.LastName, s.FirstName, s.MiddleName', false);
+        $this->db->from('registration r');
+        $this->db->join('studeprofile s', 's.StudentNumber = r.StudentNumber', 'left');
+        $this->db->where('r.SY', $sy);
+        $this->db->order_by('s.LastName', 'ASC');
+        return $this->db->get()->result();
+    }
 
-/**
- * Only students handled by a specific teacher (as recorded in semesterstude) for the given SY.
- * Matching key: semesterstude.IDNumber = $teacherID and semesterstude.SY = $sy
- */
-// Ren_model.php
+    /**
+     * Only students handled by a specific teacher (as recorded in semesterstude) for the given SY.
+     * Matching key: semesterstude.IDNumber = $teacherID and semesterstude.SY = $sy
+     */
+    // Ren_model.php
 
-/**
- * Students taught by a teacher this SY, inferred from semsubjects,
- * by matching semsubjects <-> registration on SY + SubjectCode + Description
- * and Section when semsubjects.Section is set.
- */
-public function get_students_with_registration_for_teacher_subjects($sy, $teacherID)
-{
-    $teacherID = trim((string)$teacherID);
+    /**
+     * Students taught by a teacher this SY, inferred from semsubjects,
+     * by matching semsubjects <-> registration on SY + SubjectCode + Description
+     * and Section when semsubjects.Section is set.
+     */
+    public function get_students_with_registration_for_teacher_subjects($sy, $teacherID)
+    {
+        $teacherID = trim((string)$teacherID);
 
-    $this->db->select('DISTINCT r.StudentNumber, s.LastName, s.FirstName, s.MiddleName', false);
-    $this->db->from('registration r');
-    $this->db->join('studeprofile s', 's.StudentNumber = r.StudentNumber', 'left');
+        $this->db->select('DISTINCT r.StudentNumber, s.LastName, s.FirstName, s.MiddleName', false);
+        $this->db->from('registration r');
+        $this->db->join('studeprofile s', 's.StudentNumber = r.StudentNumber', 'left');
 
-    // Join to semsubjects (teacher’s load)
-    // Match on SY + SubjectCode + Description, and Section if semsubjects.Section is not empty
-    $this->db->join(
-        'semsubjects ss',
-        "ss.SY = r.SY
+        // Join to semsubjects (teacher’s load)
+        // Match on SY + SubjectCode + Description, and Section if semsubjects.Section is not empty
+        $this->db->join(
+            'semsubjects ss',
+            "ss.SY = r.SY
          AND TRIM(ss.SubjectCode) = TRIM(r.SubjectCode)
          AND TRIM(ss.Description) = TRIM(r.Description)
          AND (ss.Section IS NULL OR ss.Section = '' OR TRIM(ss.Section) = TRIM(r.Section))",
-        'inner'
-    );
+            'inner'
+        );
 
-    $this->db->where('r.SY', $sy);
-    $this->db->where('ss.SY', $sy);
-    $this->db->where('ss.IDNumber', $teacherID);
+        $this->db->where('r.SY', $sy);
+        $this->db->where('ss.SY', $sy);
+        $this->db->where('ss.IDNumber', $teacherID);
 
-    $this->db->order_by('s.LastName', 'ASC');
-    return $this->db->get()->result();
-}
+        $this->db->order_by('s.LastName', 'ASC');
+        return $this->db->get()->result();
+    }
 
 
-// all registration rows for a student in SY (adjust column names if different)
-public function get_registration_rows($sy, $studentNumber)
-{
-    $this->db->select('
+    // all registration rows for a student in SY (adjust column names if different)
+    public function get_registration_rows($sy, $studentNumber)
+    {
+        $this->db->select('
         regnumber AS regID,          /* <-- alias regnumber to regID */
         StudentNumber,
         SubjectCode,
@@ -578,118 +561,121 @@ public function get_registration_rows($sy, $studentNumber)
         YearLevel,
         Section
     ', false);
-    $this->db->from('registration');
-    $this->db->where('SY', $sy);
-    $this->db->where('StudentNumber', $studentNumber);
-    $this->db->order_by('Description', 'ASC');
-    return $this->db->get()->result();
-}
-
-// batch insert grades but skip duplicates (StudentNumber, SubjectCode, SY, Semester)
-// Remove Semester from duplicate check
-public function insert_grades_batch_skip_dupes(array $rows)
-{
-    if (empty($rows)) return 0;
-    $insertable = [];
-
-    foreach ($rows as $r) {
-        if (empty($r['StudentNumber']) || empty($r['SubjectCode']) || empty($r['SY'])) {
-            continue; // skip incomplete keys
-        }
-
-        // Only check StudentNumber + SubjectCode + SY
-        $exists = $this->db->where([
-            'StudentNumber' => $r['StudentNumber'],
-            'SubjectCode'   => $r['SubjectCode'],
-            'SY'            => $r['SY'],
-        ])->count_all_results('grades');
-
-        if ($exists == 0) $insertable[] = $r;
+        $this->db->from('registration');
+        $this->db->where('SY', $sy);
+        $this->db->where('StudentNumber', $studentNumber);
+        $this->db->order_by('Description', 'ASC');
+        return $this->db->get()->result();
     }
 
-    if (empty($insertable)) return 0;
-    $this->db->insert_batch('grades', $insertable);
-    return $this->db->affected_rows();
-}
+    // batch insert grades but skip duplicates (StudentNumber, SubjectCode, SY, Semester)
+    // Remove Semester from duplicate check
+    public function insert_grades_batch_skip_dupes(array $rows)
+    {
+        if (empty($rows)) return 0;
+        $insertable = [];
+
+        foreach ($rows as $r) {
+            if (empty($r['StudentNumber']) || empty($r['SubjectCode']) || empty($r['SY'])) {
+                continue; // skip incomplete keys
+            }
+
+            // Only check StudentNumber + SubjectCode + SY
+            $exists = $this->db->where([
+                'StudentNumber' => $r['StudentNumber'],
+                'SubjectCode'   => $r['SubjectCode'],
+                'SY'            => $r['SY'],
+            ])->count_all_results('grades');
+
+            if ($exists == 0) $insertable[] = $r;
+        }
+
+        if (empty($insertable)) return 0;
+        $this->db->insert_batch('grades', $insertable);
+        return $this->db->affected_rows();
+    }
 
 
 
 
 
 
-// Ren_model.php
-public function get_existing_grade_row($sn, $sc, $sy, $section)
-{
-    $sn      = trim((string)$sn);
-    $sc      = trim((string)$sc);
-    $sy      = trim((string)$sy);
-    $section = trim((string)$section);
+    // Ren_model.php
+    public function get_existing_grade_row($sn, $sc, $sy, $section)
+    {
+        $sn      = trim((string)$sn);
+        $sc      = trim((string)$sc);
+        $sy      = trim((string)$sy);
+        $section = trim((string)$section);
 
-    return $this->db
-        ->limit(1)
-        ->get_where('grades', [
-            'StudentNumber' => $sn,
-            'SubjectCode'   => $sc,
-            'SY'            => $sy,
-            'Section'       => $section,
-        ])->row();
-}
+        return $this->db
+            ->limit(1)
+            ->get_where('grades', [
+                'StudentNumber' => $sn,
+                'SubjectCode'   => $sc,
+                'SY'            => $sy,
+                'Section'       => $section,
+            ])->row();
+    }
 
-/**
- * Insert when no grades row. Update when existing row has all zero/null grades.
- * Skips any row that already has non-zero data.
- * Returns ['inserted'=>X, 'updated'=>Y, 'skipped'=>Z]
- */
-public function upsert_grades_for_pending(array $rows, $forceUpdate = false)
-{
-    $res = ['inserted'=>0,'updated'=>0,'skipped'=>0];
+    /**
+     * Insert when no grades row. Update when existing row has all zero/null grades.
+     * Skips any row that already has non-zero data.
+     * Returns ['inserted'=>X, 'updated'=>Y, 'skipped'=>Z]
+     */
+    public function upsert_grades_for_pending(array $rows, $forceUpdate = false)
+    {
+        $res = ['inserted' => 0, 'updated' => 0, 'skipped' => 0];
 
-    foreach ($rows as $r) {
-        $sn      = $r['StudentNumber'] ?? '';
-        $sc      = $r['SubjectCode']   ?? '';
-        $sy      = $r['SY']            ?? '';
-        $section = $r['Section']       ?? '';
+        foreach ($rows as $r) {
+            $sn      = $r['StudentNumber'] ?? '';
+            $sc      = $r['SubjectCode']   ?? '';
+            $sy      = $r['SY']            ?? '';
+            $section = $r['Section']       ?? '';
 
-        if ($sn === '' || $sc === '' || $sy === '') { $res['skipped']++; continue; }
+            if ($sn === '' || $sc === '' || $sy === '') {
+                $res['skipped']++;
+                continue;
+            }
 
-        $exist = $this->get_existing_grade_row($sn, $sc, $sy, $section);
+            $exist = $this->get_existing_grade_row($sn, $sc, $sy, $section);
 
-        if (!$exist) {
-            $this->db->insert('grades', $r);
-            $res['inserted'] += ($this->db->affected_rows() > 0) ? 1 : 0;
-        } else {
-            $allZero = (float)($exist->PGrade ?? 0) == 0.0
+            if (!$exist) {
+                $this->db->insert('grades', $r);
+                $res['inserted'] += ($this->db->affected_rows() > 0) ? 1 : 0;
+            } else {
+                $allZero = (float)($exist->PGrade ?? 0) == 0.0
                     && (float)($exist->MGrade ?? 0) == 0.0
                     && (float)($exist->PFinalGrade ?? 0) == 0.0
                     && (float)($exist->FGrade ?? 0) == 0.0;
 
-            if ($forceUpdate || $allZero) {
-                $upd = [
-                    'PGrade'      => $r['PGrade'],
-                    'MGrade'      => $r['MGrade'],
-                    'PFinalGrade' => $r['PFinalGrade'],
-                    'FGrade'      => $r['FGrade'],
-                    'Average'     => $r['Average'],
-                    'Instructor'  => $r['Instructor'] ?? $exist->Instructor,
-                    'Description' => $r['Description'] ?? $exist->Description,
-                    'YearLevel'   => $r['YearLevel']   ?? $exist->YearLevel,
-                    'Section'     => $r['Section']     ?? $exist->Section,
-                    'adviser'     => $r['adviser']     ?? $exist->adviser,
-                    'strand'      => $r['strand']      ?? $exist->strand,
-                ];
-                $this->db->where('gradeID', $exist->gradeID)->update('grades', $upd);
-                $res['updated'] += ($this->db->affected_rows() > 0) ? 1 : 0;
-            } else {
-                $res['skipped']++;
+                if ($forceUpdate || $allZero) {
+                    $upd = [
+                        'PGrade'      => $r['PGrade'],
+                        'MGrade'      => $r['MGrade'],
+                        'PFinalGrade' => $r['PFinalGrade'],
+                        'FGrade'      => $r['FGrade'],
+                        'Average'     => $r['Average'],
+                        'Instructor'  => $r['Instructor'] ?? $exist->Instructor,
+                        'Description' => $r['Description'] ?? $exist->Description,
+                        'YearLevel'   => $r['YearLevel']   ?? $exist->YearLevel,
+                        'Section'     => $r['Section']     ?? $exist->Section,
+                        'adviser'     => $r['adviser']     ?? $exist->adviser,
+                        'strand'      => $r['strand']      ?? $exist->strand,
+                    ];
+                    $this->db->where('gradeID', $exist->gradeID)->update('grades', $upd);
+                    $res['updated'] += ($this->db->affected_rows() > 0) ? 1 : 0;
+                } else {
+                    $res['skipped']++;
+                }
             }
         }
+        return $res;
     }
-    return $res;
-}
 
-public function get_registration_rows_pending_for_grading($sy, $studentNumber, $grading = 'all')
-{
-    $this->db->select("
+    public function get_registration_rows_pending_for_grading($sy, $studentNumber, $grading = 'all')
+    {
+        $this->db->select("
         r.regnumber AS regID,
         r.StudentNumber,
         r.SubjectCode,
@@ -702,94 +688,96 @@ public function get_registration_rows_pending_for_grading($sy, $studentNumber, $
         COALESCE(r.strand, '')     AS strand
     ", false);
 
-    $this->db->from('registration r');
+        $this->db->from('registration r');
 
-    // Join sections by YearLevel + Section + SY (no Sem)
-    $this->db->join('sections sec',
-        'sec.YearLevel = r.YearLevel AND ' .
-        'sec.Section   = r.Section   AND ' .
-        'sec.SY        = r.SY',
-        'left'
-    );
+        // Join sections by YearLevel + Section + SY (no Sem)
+        $this->db->join(
+            'sections sec',
+            'sec.YearLevel = r.YearLevel AND ' .
+                'sec.Section   = r.Section   AND ' .
+                'sec.SY        = r.SY',
+            'left'
+        );
 
-    // Join grades to check pending/zeros
-    $this->db->join('grades g',
-        'g.StudentNumber = r.StudentNumber AND ' .
-        'g.SubjectCode   = r.SubjectCode   AND ' .
-        'g.SY            = r.SY            AND ' .
-        'g.Section       = r.Section',
-        'left'
-    );
+        // Join grades to check pending/zeros
+        $this->db->join(
+            'grades g',
+            'g.StudentNumber = r.StudentNumber AND ' .
+                'g.SubjectCode   = r.SubjectCode   AND ' .
+                'g.SY            = r.SY            AND ' .
+                'g.Section       = r.Section',
+            'left'
+        );
 
-    $this->db->where('r.SY', $sy);
-    $this->db->where('r.StudentNumber', $studentNumber);
+        $this->db->where('r.SY', $sy);
+        $this->db->where('r.StudentNumber', $studentNumber);
 
-    if ($grading === 'first') {
-        $this->db->group_start()
-            ->where('g.gradeID IS NULL', null, false)
-            ->or_where('COALESCE(g.PGrade,0)=0', null, false)
-        ->group_end();
-    } elseif ($grading === 'second') {
-        $this->db->group_start()
-            ->where('g.gradeID IS NULL', null, false)
-            ->or_where('COALESCE(g.MGrade,0)=0', null, false)
-        ->group_end();
-    } elseif ($grading === 'third') {
-        $this->db->group_start()
-            ->where('g.gradeID IS NULL', null, false)
-            ->or_where('COALESCE(g.PFinalGrade,0)=0', null, false)
-        ->group_end();
-    } elseif ($grading === 'fourth') {
-        $this->db->group_start()
-            ->where('g.gradeID IS NULL', null, false)
-            ->or_where('COALESCE(g.FGrade,0)=0', null, false)
-        ->group_end();
-    } else { // all
-        $this->db->group_start()
-            ->where('g.gradeID IS NULL', null, false)
-            ->or_group_start()
+        if ($grading === 'first') {
+            $this->db->group_start()
+                ->where('g.gradeID IS NULL', null, false)
+                ->or_where('COALESCE(g.PGrade,0)=0', null, false)
+                ->group_end();
+        } elseif ($grading === 'second') {
+            $this->db->group_start()
+                ->where('g.gradeID IS NULL', null, false)
+                ->or_where('COALESCE(g.MGrade,0)=0', null, false)
+                ->group_end();
+        } elseif ($grading === 'third') {
+            $this->db->group_start()
+                ->where('g.gradeID IS NULL', null, false)
+                ->or_where('COALESCE(g.PFinalGrade,0)=0', null, false)
+                ->group_end();
+        } elseif ($grading === 'fourth') {
+            $this->db->group_start()
+                ->where('g.gradeID IS NULL', null, false)
+                ->or_where('COALESCE(g.FGrade,0)=0', null, false)
+                ->group_end();
+        } else { // all
+            $this->db->group_start()
+                ->where('g.gradeID IS NULL', null, false)
+                ->or_group_start()
                 ->where('COALESCE(g.PGrade,0)=0',      null, false)
                 ->where('COALESCE(g.MGrade,0)=0',      null, false)
                 ->where('COALESCE(g.PFinalGrade,0)=0', null, false)
                 ->where('COALESCE(g.FGrade,0)=0',      null, false)
-            ->group_end()
-        ->group_end();
+                ->group_end()
+                ->group_end();
+        }
+
+        $this->db->order_by('r.Description', 'ASC');
+        return $this->db->get()->result();
     }
 
-    $this->db->order_by('r.Description', 'ASC');
-    return $this->db->get()->result();
-}
 
 
+    public function check_if_student_has_grades($studentNumber, $sy, $grading)
+    {
+        // Check if the student already has grades for the selected grading period
+        $this->db->select('gradeID');
+        $this->db->from('grades');
+        $this->db->where('StudentNumber', $studentNumber);
+        $this->db->where('SY', $sy);
 
-public function check_if_student_has_grades($studentNumber, $sy, $grading)
-{
-    // Check if the student already has grades for the selected grading period
-    $this->db->select('gradeID');
-    $this->db->from('grades');
-    $this->db->where('StudentNumber', $studentNumber);
-    $this->db->where('SY', $sy);
+        if ($grading === 'first') {
+            $this->db->where('PGrade !=', 0);  // Check for Prelim grades
+        } elseif ($grading === 'second') {
+            $this->db->where('MGrade !=', 0);  // Check for Midterm grades
+        } elseif ($grading === 'third') {
+            $this->db->where('PFinalGrade !=', 0);  // Check for PreFinal grades
+        } elseif ($grading === 'fourth') {
+            $this->db->where('FGrade !=', 0);  // Check for Final grades
+        }
 
-    if ($grading === 'first') {
-        $this->db->where('PGrade !=', 0);  // Check for Prelim grades
-    } elseif ($grading === 'second') {
-        $this->db->where('MGrade !=', 0);  // Check for Midterm grades
-    } elseif ($grading === 'third') {
-        $this->db->where('PFinalGrade !=', 0);  // Check for PreFinal grades
-    } elseif ($grading === 'fourth') {
-        $this->db->where('FGrade !=', 0);  // Check for Final grades
+        $query = $this->db->get();
+
+        // Return true if grades exist for the selected period, false otherwise
+        return $query->num_rows() > 0;
     }
 
-    $query = $this->db->get();
 
-    // Return true if grades exist for the selected period, false otherwise
-    return $query->num_rows() > 0;
-}
-
-
-public function get_registration_rows_pending($sy, $studentNumber)
-{
-    $this->db->select("
+    public function get_registration_rows_pending($sy, $studentNumber)
+    {
+        $this->db->select("
         r.regnumber AS regID,
         r.StudentNumber,
         r.SubjectCode,
@@ -802,66 +790,68 @@ public function get_registration_rows_pending($sy, $studentNumber)
         COALESCE(r.strand, '')     AS strand
     ", false);
 
-    $this->db->from('registration r');
+        $this->db->from('registration r');
 
-    // Join sections by YearLevel + Section + SY (no Sem)
-    $this->db->join('sections sec',
-        'sec.YearLevel = r.YearLevel AND ' .
-        'sec.Section   = r.Section   AND ' .
-        'sec.SY        = r.SY',
-        'left'
-    );
+        // Join sections by YearLevel + Section + SY (no Sem)
+        $this->db->join(
+            'sections sec',
+            'sec.YearLevel = r.YearLevel AND ' .
+                'sec.Section   = r.Section   AND ' .
+                'sec.SY        = r.SY',
+            'left'
+        );
 
-    // Left join to grades to find pending/all-zero
-    $this->db->join('grades g', 
-        'g.StudentNumber = r.StudentNumber AND ' .
-        'g.SubjectCode   = r.SubjectCode   AND ' .
-        'g.SY            = r.SY            AND ' .
-        'g.Section       = r.Section',
-        'left'
-    );
+        // Left join to grades to find pending/all-zero
+        $this->db->join(
+            'grades g',
+            'g.StudentNumber = r.StudentNumber AND ' .
+                'g.SubjectCode   = r.SubjectCode   AND ' .
+                'g.SY            = r.SY            AND ' .
+                'g.Section       = r.Section',
+            'left'
+        );
 
-    $this->db->where('r.SY', $sy);
-    $this->db->where('r.StudentNumber', $studentNumber);
+        $this->db->where('r.SY', $sy);
+        $this->db->where('r.StudentNumber', $studentNumber);
 
-    $this->db->group_start();
+        $this->db->group_start();
         $this->db->where('g.gradeID IS NULL', null, false);
         $this->db->or_group_start();
-            $this->db->where('COALESCE(g.PGrade,0)=0',      null, false);
-            $this->db->where('COALESCE(g.MGrade,0)=0',      null, false);
-            $this->db->where('COALESCE(g.PFinalGrade,0)=0', null, false);
-            $this->db->where('COALESCE(g.FGrade,0)=0',      null, false);
+        $this->db->where('COALESCE(g.PGrade,0)=0',      null, false);
+        $this->db->where('COALESCE(g.MGrade,0)=0',      null, false);
+        $this->db->where('COALESCE(g.PFinalGrade,0)=0', null, false);
+        $this->db->where('COALESCE(g.FGrade,0)=0',      null, false);
         $this->db->group_end();
-    $this->db->group_end();
+        $this->db->group_end();
 
-    $this->db->order_by('r.Description', 'ASC');
-    return $this->db->get()->result();
-}
-
-
+        $this->db->order_by('r.Description', 'ASC');
+        return $this->db->get()->result();
+    }
 
 
 
-// Students under adviser (semesterstude.Adviser = adviserID)
-public function get_students_for_adviser($sy, $adviserID)
-{
-    $this->db->select('DISTINCT r.StudentNumber, s.LastName, s.FirstName, s.MiddleName', false);
-    $this->db->from('registration r');
-    $this->db->join('studeprofile s', 's.StudentNumber = r.StudentNumber', 'left');
-    $this->db->join('semesterstude ss', 'ss.StudentNumber = r.StudentNumber AND ss.SY = r.SY', 'left');
-    $this->db->where('r.SY', $sy);
-    $this->db->where('ss.Adviser', $adviserID);
-    $this->db->order_by('s.LastName', 'ASC');
-    return $this->db->get()->result();
-}
 
-/**
- * All subjects for a student with current grades (if any)
- * Used by Adviser/Registrar
- */
-public function rows_with_grades_all($sy, $studentNumber)
-{
-    $this->db->select("
+
+    // Students under adviser (semesterstude.Adviser = adviserID)
+    public function get_students_for_adviser($sy, $adviserID)
+    {
+        $this->db->select('DISTINCT r.StudentNumber, s.LastName, s.FirstName, s.MiddleName', false);
+        $this->db->from('registration r');
+        $this->db->join('studeprofile s', 's.StudentNumber = r.StudentNumber', 'left');
+        $this->db->join('semesterstude ss', 'ss.StudentNumber = r.StudentNumber AND ss.SY = r.SY', 'left');
+        $this->db->where('r.SY', $sy);
+        $this->db->where('ss.Adviser', $adviserID);
+        $this->db->order_by('s.LastName', 'ASC');
+        return $this->db->get()->result();
+    }
+
+    /**
+     * All subjects for a student with current grades (if any)
+     * Used by Adviser/Registrar
+     */
+    public function rows_with_grades_all($sy, $studentNumber)
+    {
+        $this->db->select("
         r.regnumber   AS regID,
         r.StudentNumber,
         r.SubjectCode,
@@ -879,24 +869,29 @@ public function rows_with_grades_all($sy, $studentNumber)
         COALESCE(g.FGrade,0)      AS FGrade,
         COALESCE(g.Average,0)     AS Average
     ", false);
-    $this->db->from('registration r');
-    $this->db->join('sections sec',
-        'sec.YearLevel = r.YearLevel AND sec.Section = r.Section AND sec.SY = r.SY','left');
-    $this->db->join('grades g',
-        'g.StudentNumber = r.StudentNumber AND g.SubjectCode = r.SubjectCode AND g.SY = r.SY AND g.Section = r.Section',
-        'left');
-    $this->db->where('r.SY', $sy);
-    $this->db->where('r.StudentNumber', $studentNumber);
-    $this->db->order_by('r.Description', 'ASC');
-    return $this->db->get()->result();
-}
+        $this->db->from('registration r');
+        $this->db->join(
+            'sections sec',
+            'sec.YearLevel = r.YearLevel AND sec.Section = r.Section AND sec.SY = r.SY',
+            'left'
+        );
+        $this->db->join(
+            'grades g',
+            'g.StudentNumber = r.StudentNumber AND g.SubjectCode = r.SubjectCode AND g.SY = r.SY AND g.Section = r.Section',
+            'left'
+        );
+        $this->db->where('r.SY', $sy);
+        $this->db->where('r.StudentNumber', $studentNumber);
+        $this->db->order_by('r.Description', 'ASC');
+        return $this->db->get()->result();
+    }
 
-/**
- * Only the teacher's subjects for that student, with current grades (if any)
- */
-public function rows_with_grades_for_teacher($sy, $studentNumber, $teacherID)
-{
-    $this->db->select("
+    /**
+     * Only the teacher's subjects for that student, with current grades (if any)
+     */
+    public function rows_with_grades_for_teacher($sy, $studentNumber, $teacherID)
+    {
+        $this->db->select("
         r.regnumber   AS regID,
         r.StudentNumber,
         r.SubjectCode,
@@ -915,136 +910,152 @@ public function rows_with_grades_for_teacher($sy, $studentNumber, $teacherID)
         COALESCE(g.Average,0)     AS Average
     ", false);
 
-    $this->db->from('registration r');
-    // tie to teacher load
-    $this->db->join('semsubjects ss',
-        "ss.SY = r.SY
+        $this->db->from('registration r');
+        // tie to teacher load
+        $this->db->join(
+            'semsubjects ss',
+            "ss.SY = r.SY
          AND TRIM(ss.SubjectCode) = TRIM(r.SubjectCode)
          AND TRIM(ss.Description) = TRIM(r.Description)
          AND (ss.Section IS NULL OR ss.Section = '' OR TRIM(ss.Section) = TRIM(r.Section))",
-        'inner'
-    );
-    $this->db->join('sections sec',
-        'sec.YearLevel = r.YearLevel AND sec.Section = r.Section AND sec.SY = r.SY','left');
-    $this->db->join('grades g',
-        'g.StudentNumber = r.StudentNumber AND g.SubjectCode = r.SubjectCode AND g.SY = r.SY AND g.Section = r.Section',
-        'left');
+            'inner'
+        );
+        $this->db->join(
+            'sections sec',
+            'sec.YearLevel = r.YearLevel AND sec.Section = r.Section AND sec.SY = r.SY',
+            'left'
+        );
+        $this->db->join(
+            'grades g',
+            'g.StudentNumber = r.StudentNumber AND g.SubjectCode = r.SubjectCode AND g.SY = r.SY AND g.Section = r.Section',
+            'left'
+        );
 
-    $this->db->where('r.SY', $sy);
-    $this->db->where('r.StudentNumber', $studentNumber);
-    $this->db->where('ss.IDNumber', $teacherID);
+        $this->db->where('r.SY', $sy);
+        $this->db->where('r.StudentNumber', $studentNumber);
+        $this->db->where('ss.IDNumber', $teacherID);
 
-    $this->db->order_by('r.Description', 'ASC');
-    return $this->db->get()->result();
-}
-
-
-
-
-public function upsert_grades_absolute(array $rows, string $mode = 'fill')
-{
-    // $mode: 'force' (registrar) | 'fill' (teacher/adviser)
-    $res = ['inserted'=>0, 'updated'=>0, 'unchanged'=>0];
-
-    foreach ($rows as $r) {
-        $sn      = trim((string)($r['StudentNumber'] ?? ''));
-        $sc      = trim((string)($r['SubjectCode']   ?? ''));
-        $sy      = trim((string)($r['SY']            ?? ''));
-        $section = trim((string)($r['Section']       ?? ''));
-
-        if ($sn === '' || $sc === '' || $sy === '') { $res['unchanged']++; continue; }
-
-        $exist = $this->get_existing_grade_row($sn, $sc, $sy, $section);
-
-        // Normalize incoming cell intents: NULL means "no change".
-        $inP  = array_key_exists('PGrade',      $r) ? $r['PGrade']      : null;
-        $inM  = array_key_exists('MGrade',      $r) ? $r['MGrade']      : null;
-        $inPF = array_key_exists('PFinalGrade', $r) ? $r['PFinalGrade'] : null;
-        $inF  = array_key_exists('FGrade',      $r) ? $r['FGrade']      : null;
-
-        if (!$exist) {
-            // INSERT: build a new row; untouched cells default to 0
-            $row = [
-                'StudentNumber' => $sn,
-                'SubjectCode'   => $sc,
-                'Description'   => $r['Description'] ?? '',
-                'Instructor'    => $r['Instructor']  ?? '',
-                'Section'       => $section,
-                'PGrade'        => is_null($inP)  ? 0 : (float)$inP,
-                'MGrade'        => is_null($inM)  ? 0 : (float)$inM,
-                'PFinalGrade'   => is_null($inPF) ? 0 : (float)$inPF,
-                'FGrade'        => is_null($inF)  ? 0 : (float)$inF,
-                'Average'       => 0, // compute below
-                'Sem'           => '', // set if you use it
-                'SY'            => $sy,
-                'YearLevel'     => $r['YearLevel'] ?? '',
-                'adviser'       => $r['adviser']   ?? '',
-                'strand'        => $r['strand']    ?? '',
-            ];
-
-            // Compute Average from non-zero parts (or leave 0 if none)
-            $parts = [];
-            if ($row['PGrade']      > 0) $parts[] = $row['PGrade'];
-            if ($row['MGrade']      > 0) $parts[] = $row['MGrade'];
-            if ($row['PFinalGrade'] > 0) $parts[] = $row['PFinalGrade'];
-            if ($row['FGrade']      > 0) $parts[] = $row['FGrade'];
-            $row['Average'] = count($parts) ? round(array_sum($parts)/count($parts), 2) : 0;
-
-            // Only insert when at least one intended cell is present (or force mode allows zero-fill insert)
-            $hasIntent = ($inP !== null) || ($inM !== null) || ($inPF !== null) || ($inF !== null);
-            if ($hasIntent) {
-                $this->db->insert('grades', $row);
-                $res['inserted'] += ($this->db->affected_rows() > 0) ? 1 : 0;
-            } else {
-                $res['unchanged']++;
-            }
-            continue;
-        }
-
-        // UPDATE path: compute which cells to change
-        $upd = [];
-
-        // Pull current values
-        $curP  = (float)($exist->PGrade      ?? 0);
-        $curM  = (float)($exist->MGrade      ?? 0);
-        $curPF = (float)($exist->PFinalGrade ?? 0);
-        $curF  = (float)($exist->FGrade      ?? 0);
-
-        // Apply per mode
-        if (!is_null($inP) )  { if ($mode==='force' || $curP  == 0.0) $upd['PGrade']      = (float)$inP; }
-        if (!is_null($inM) )  { if ($mode==='force' || $curM  == 0.0) $upd['MGrade']      = (float)$inM; }
-        if (!is_null($inPF))  { if ($mode==='force' || $curPF == 0.0) $upd['PFinalGrade'] = (float)$inPF; }
-        if (!is_null($inF) )  { if ($mode==='force' || $curF  == 0.0) $upd['FGrade']      = (float)$inF; }
-
-        // Also refresh meta if provided
-        foreach (['Instructor','Description','YearLevel','Section','adviser','strand'] as $k) {
-            if (isset($r[$k]) && $r[$k] !== '') $upd[$k] = $r[$k];
-        }
-
-        if (!empty($upd)) {
-            // Recompute Average based on the would-be new state
-            $newP  = array_key_exists('PGrade',      $upd) ? (float)$upd['PGrade']      : $curP;
-            $newM  = array_key_exists('MGrade',      $upd) ? (float)$upd['MGrade']      : $curM;
-            $newPF = array_key_exists('PFinalGrade', $upd) ? (float)$upd['PFinalGrade'] : $curPF;
-            $newF  = array_key_exists('FGrade',      $upd) ? (float)$upd['FGrade']      : $curF;
-
-            $parts = [];
-            if ($newP  > 0) $parts[] = $newP;
-            if ($newM  > 0) $parts[] = $newM;
-            if ($newPF > 0) $parts[] = $newPF;
-            if ($newF  > 0) $parts[] = $newF;
-
-            $upd['Average'] = count($parts) ? round(array_sum($parts)/count($parts), 2) : 0;
-
-            $this->db->where('gradeID', $exist->gradeID)->update('grades', $upd);
-            $res['updated'] += ($this->db->affected_rows() > 0) ? 1 : 0;
-        } else {
-            // No applicable change (e.g., teacher tried to overwrite a non-zero cell)
-            $res['unchanged']++;
-        }
+        $this->db->order_by('r.Description', 'ASC');
+        return $this->db->get()->result();
     }
 
-    return $res;
-}
 
+
+
+    public function upsert_grades_absolute(array $rows, string $mode = 'fill')
+    {
+        // $mode: 'force' (registrar) | 'fill' (teacher/adviser)
+        $res = ['inserted' => 0, 'updated' => 0, 'unchanged' => 0];
+
+        foreach ($rows as $r) {
+            $sn      = trim((string)($r['StudentNumber'] ?? ''));
+            $sc      = trim((string)($r['SubjectCode']   ?? ''));
+            $sy      = trim((string)($r['SY']            ?? ''));
+            $section = trim((string)($r['Section']       ?? ''));
+
+            if ($sn === '' || $sc === '' || $sy === '') {
+                $res['unchanged']++;
+                continue;
+            }
+
+            $exist = $this->get_existing_grade_row($sn, $sc, $sy, $section);
+
+            // Normalize incoming cell intents: NULL means "no change".
+            $inP  = array_key_exists('PGrade',      $r) ? $r['PGrade']      : null;
+            $inM  = array_key_exists('MGrade',      $r) ? $r['MGrade']      : null;
+            $inPF = array_key_exists('PFinalGrade', $r) ? $r['PFinalGrade'] : null;
+            $inF  = array_key_exists('FGrade',      $r) ? $r['FGrade']      : null;
+
+            if (!$exist) {
+                // INSERT: build a new row; untouched cells default to 0
+                $row = [
+                    'StudentNumber' => $sn,
+                    'SubjectCode'   => $sc,
+                    'Description'   => $r['Description'] ?? '',
+                    'Instructor'    => $r['Instructor']  ?? '',
+                    'Section'       => $section,
+                    'PGrade'        => is_null($inP)  ? 0 : (float)$inP,
+                    'MGrade'        => is_null($inM)  ? 0 : (float)$inM,
+                    'PFinalGrade'   => is_null($inPF) ? 0 : (float)$inPF,
+                    'FGrade'        => is_null($inF)  ? 0 : (float)$inF,
+                    'Average'       => 0, // compute below
+                    'Sem'           => '', // set if you use it
+                    'SY'            => $sy,
+                    'YearLevel'     => $r['YearLevel'] ?? '',
+                    'adviser'       => $r['adviser']   ?? '',
+                    'strand'        => $r['strand']    ?? '',
+                ];
+
+                // Compute Average from non-zero parts (or leave 0 if none)
+                $parts = [];
+                if ($row['PGrade']      > 0) $parts[] = $row['PGrade'];
+                if ($row['MGrade']      > 0) $parts[] = $row['MGrade'];
+                if ($row['PFinalGrade'] > 0) $parts[] = $row['PFinalGrade'];
+                if ($row['FGrade']      > 0) $parts[] = $row['FGrade'];
+                $row['Average'] = count($parts) ? round(array_sum($parts) / count($parts), 2) : 0;
+
+                // Only insert when at least one intended cell is present (or force mode allows zero-fill insert)
+                $hasIntent = ($inP !== null) || ($inM !== null) || ($inPF !== null) || ($inF !== null);
+                if ($hasIntent) {
+                    $this->db->insert('grades', $row);
+                    $res['inserted'] += ($this->db->affected_rows() > 0) ? 1 : 0;
+                } else {
+                    $res['unchanged']++;
+                }
+                continue;
+            }
+
+            // UPDATE path: compute which cells to change
+            $upd = [];
+
+            // Pull current values
+            $curP  = (float)($exist->PGrade      ?? 0);
+            $curM  = (float)($exist->MGrade      ?? 0);
+            $curPF = (float)($exist->PFinalGrade ?? 0);
+            $curF  = (float)($exist->FGrade      ?? 0);
+
+            // Apply per mode
+            if (!is_null($inP)) {
+                if ($mode === 'force' || $curP  == 0.0) $upd['PGrade']      = (float)$inP;
+            }
+            if (!is_null($inM)) {
+                if ($mode === 'force' || $curM  == 0.0) $upd['MGrade']      = (float)$inM;
+            }
+            if (!is_null($inPF)) {
+                if ($mode === 'force' || $curPF == 0.0) $upd['PFinalGrade'] = (float)$inPF;
+            }
+            if (!is_null($inF)) {
+                if ($mode === 'force' || $curF  == 0.0) $upd['FGrade']      = (float)$inF;
+            }
+
+            // Also refresh meta if provided
+            foreach (['Instructor', 'Description', 'YearLevel', 'Section', 'adviser', 'strand'] as $k) {
+                if (isset($r[$k]) && $r[$k] !== '') $upd[$k] = $r[$k];
+            }
+
+            if (!empty($upd)) {
+                // Recompute Average based on the would-be new state
+                $newP  = array_key_exists('PGrade',      $upd) ? (float)$upd['PGrade']      : $curP;
+                $newM  = array_key_exists('MGrade',      $upd) ? (float)$upd['MGrade']      : $curM;
+                $newPF = array_key_exists('PFinalGrade', $upd) ? (float)$upd['PFinalGrade'] : $curPF;
+                $newF  = array_key_exists('FGrade',      $upd) ? (float)$upd['FGrade']      : $curF;
+
+                $parts = [];
+                if ($newP  > 0) $parts[] = $newP;
+                if ($newM  > 0) $parts[] = $newM;
+                if ($newPF > 0) $parts[] = $newPF;
+                if ($newF  > 0) $parts[] = $newF;
+
+                $upd['Average'] = count($parts) ? round(array_sum($parts) / count($parts), 2) : 0;
+
+                $this->db->where('gradeID', $exist->gradeID)->update('grades', $upd);
+                $res['updated'] += ($this->db->affected_rows() > 0) ? 1 : 0;
+            } else {
+                // No applicable change (e.g., teacher tried to overwrite a non-zero cell)
+                $res['unchanged']++;
+            }
+        }
+
+        return $res;
+    }
 }

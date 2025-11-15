@@ -106,7 +106,7 @@
             $v = (float)$v;
             $floor = floor($v);
             $frac  = $v - $floor;
-            if ($frac > 0.5) return (int)ceil($v); // strictly greater than .5 → up
+            if ($frac > 0.4) return (int)ceil($v); // strictly greater than .5 → up
             return (int)$floor;                     // .50 and below → down
           }
 

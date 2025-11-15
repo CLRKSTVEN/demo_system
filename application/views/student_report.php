@@ -71,7 +71,14 @@
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                <?php foreach ($data as $row) { ?>
+                                                <?php
+                                                $seenStudents = [];
+                                                foreach ($data as $row) {
+                                                    if (isset($seenStudents[$row->StudentNumber])) {
+                                                        continue;
+                                                    }
+                                                    $seenStudents[$row->StudentNumber] = true;
+                                                ?>
                                                     <tr>
                                                         <td><?= $row->LastName . ', ' . $row->FirstName . ' ' . $row->MiddleName; ?></td>
                                                         <td><?= $row->StudentNumber; ?></td>
@@ -79,13 +86,13 @@
                                                         <td>
                                                             <a href="<?= base_url(); ?>Ren/goodmoral/<?= $row->StudentNumber; ?>" target="_blank" class="btn btn-success btn-sm mr-1 tooltips" data-placement="top" data-toggle="tooltip" data-original-title="Good Moral Character"><i class="far fa-hand-point-left "></i></a>
                                                             <a href="<?= base_url(); ?>Ren/clearance/<?= $row->StudentNumber; ?>" target="_blank" class="btn btn-purple btn-sm mr-1 tooltips" data-placement="top" data-toggle="tooltip" data-original-title="Certificate of Enrollment"><i class="fas fa-file-alt"></i></a>
-                                                            <a href="<?= base_url(); ?>Ren/report_card/<?= $data[0]->StudentNumber; ?>" 
-                                                            target="_blank" 
-                                                            class="btn btn-success btn-sm mr-1 tooltips" 
-                                                            data-placement="top" 
-                                                            data-toggle="tooltip" 
-                                                            data-original-title="Report Card">
-                                                            <i class="fa fa-file-alt"></i>
+                                                            <a href="<?= base_url(); ?>Ren/report_card/<?= $row->StudentNumber; ?>"
+                                                                target="_blank"
+                                                                class="btn btn-success btn-sm mr-1 tooltips"
+                                                                data-placement="top"
+                                                                data-toggle="tooltip"
+                                                                data-original-title="Report Card">
+                                                                <i class="fa fa-file-alt"></i>
                                                             </a>
 
                                                             <a href="<?= base_url(); ?>Ren/clear/<?= $row->StudentNumber; ?>" target="_blank" class="btn btn-primary btn-sm mr-1 tooltips" data-placement="top" data-toggle="tooltip" data-original-title="Clearance"><i class="fas fa-folder-open"></i></a>
