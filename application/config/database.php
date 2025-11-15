@@ -13,7 +13,7 @@ $db['default'] = array(
     'hostname' => '127.0.0.1',
     'username' => 'root',
     'password' => '',
-    'database' => 'demo_a',
+    'database' => 'ihmamati_srms',
 
     // =========================
     // CPANEL (COMMENTED; UNCOMMENT ON DEPLOY)
