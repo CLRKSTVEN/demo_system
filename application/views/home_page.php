@@ -105,19 +105,42 @@
 						<img src="<?= base_url(); ?>upload/banners/<?php echo $data[0]->login_form_image; ?>" alt="mySRMS Portal" width="40%">
 					</span>
 
+					<?php if (!empty($demo_accounts)) : ?>
+						<div class="wrap-input100">
+							<span class="label-input100">Demo Accounts</span>
+							<select id="demo-account" class="input100" style="border: none; padding-left: 0;">
+								<option value="">-- Select Demo Account --</option>
+								<?php foreach ($demo_accounts as $acc) : ?>
+									<option
+										value="<?php echo htmlspecialchars($acc->username, ENT_QUOTES, 'UTF-8'); ?>"
+										data-username="<?php echo htmlspecialchars($acc->username, ENT_QUOTES, 'UTF-8'); ?>"
+										data-password="<?php echo htmlspecialchars($acc->password, ENT_QUOTES, 'UTF-8'); ?>">
+										<?php
+										// Label example: "Administrator �?" juan_admin"
+										$role  = isset($acc->position) ? $acc->position : 'User';
+										$label = trim($role);
+										echo htmlspecialchars($label, ENT_QUOTES, 'UTF-8');
+										?>
+									</option>
+								<?php endforeach; ?>
+
+							</select>
+						</div>
+					<?php endif; ?>
+
 
 					<div class="wrap-input100 validate-input" data-validate="Username is required">
-						<input class="input100" type="text" name="username">
+						<input class="input100" type="text" name="username" id="login-username">
 						<span class="focus-input100"></span>
 						<span class="label-input100">Username</span>
 					</div>
 
-
 					<div class="wrap-input100 validate-input" data-validate="Password is required">
-						<input class="input100" type="password" name="password">
+						<input class="input100" type="password" name="password" id="login-password">
 						<span class="focus-input100"></span>
 						<span class="label-input100">Password</span>
 					</div>
+
 
 					<!-- <div class="wrap-input100 validate-input" data-validate="School Year is required.  Example: 2020-2021">
 						<input class="input100" type="text" name="sy" value="<?php echo isset($active_sy) ? $active_sy : ''; ?>">
@@ -125,7 +148,6 @@
 						<span class="focus-input100"></span>
 						<span class="label-input100">School Year</span>
 					</div> -->
-
 
 					<input class="input100" type="hidden" name="sy" value="<?php echo isset($active_sy) ? $active_sy : ''; ?>">
 
@@ -178,6 +200,28 @@
 	<script src="<?= base_url(); ?>assets/vendor/countdowntime/countdowntime.js"></script>
 	<!--===============================================================================================-->
 	<script src="<?= base_url(); ?>assets/js/main.js"></script>
+	<script>
+		document.addEventListener('DOMContentLoaded', function() {
+			var demoSelect = document.getElementById('demo-account');
+			if (!demoSelect) return;
+
+			var usernameInput = document.getElementById('login-username') ||
+				(document.getElementsByName('username')[0] || null);
+			var passwordInput = document.getElementById('login-password') ||
+				(document.getElementsByName('password')[0] || null);
+
+			demoSelect.addEventListener('change', function() {
+				var opt = this.options[this.selectedIndex];
+				if (!opt || !opt.getAttribute) return;
+
+				var username = opt.getAttribute('data-username') || '';
+				var password = opt.getAttribute('data-password') || '';
+
+				if (usernameInput) usernameInput.value = username;
+				if (passwordInput) passwordInput.value = password;
+			});
+		});
+	</script>
 	<script>
 		// Snap the login page to the bottom so the top band stays hidden on load
 		(function() {
@@ -256,7 +300,6 @@
 			});
 		})();
 	</script>
-
 </body>
 
 <!-- Forgot Password Modal -->

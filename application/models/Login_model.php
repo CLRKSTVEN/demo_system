@@ -7,14 +7,25 @@ class Login_model extends CI_Model
     $query = $this->db->get('srms_settings_o', 1); // Limit 1
     return $query->result();
   }
-
   function validate($username, $password)
   {
     $this->db->where('username', $username);
-    $this->db->where('password', $password);
-    $result = $this->db->get('o_users', 1);
-    // $result = $this->db->get('users',1);
 
+    // $password here is sha1(raw_password) from auth()
+    // raw input from the form (may already be the hash when using demo dropdown)
+    $raw_input = $this->input->post('password', TRUE);
+
+    $this->db->group_start();
+    // Normal case: stored password = sha1(plain password)
+    $this->db->where('password', $password);
+
+    // Demo dropdown case: stored password = raw input (already the hash)
+    if ($raw_input !== null && $raw_input !== '') {
+      $this->db->or_where('password', $raw_input);
+    }
+    $this->db->group_end();
+
+    $result = $this->db->get('o_users', 1);
     return $result;
   }
 
@@ -166,5 +177,19 @@ class Login_model extends CI_Model
     $this->db->where('email', $email);
     $query = $this->db->get();
     return $query->row_array();
+  }
+  public function get_demo_accounts()
+  {
+    // Adjusted to match actual columns in o_users
+    $this->db->select('username, password, position, fName, lName');
+    $this->db->from('o_users');
+
+    // Optionally filter which accounts appear in the demo dropdown:
+    // $this->db->where_in('position', ['Administrator', 'Registrar', 'Program Head', 'Student']);
+
+    $this->db->order_by('position', 'ASC');
+    $this->db->order_by('username', 'ASC');
+
+    return $this->db->get()->result();
   }
 }

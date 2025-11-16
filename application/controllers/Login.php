@@ -11,21 +11,34 @@ class Login extends CI_Controller
         $this->load->helper('url');
     }
 
-
     function index()
     {
         $settings = $this->Login_model->loginImage(); // returns an array of result objects
         $result['data'] = $settings;
 
-        // Assuming there's at least one row returned
+        $systemType = null;
+
         if (!empty($settings)) {
             $result['active_sy'] = $settings[0]->active_sy;
+
+            // Safely read systemType if the column exists
+            $systemType = isset($settings[0]->systemType) ? $settings[0]->systemType : null;
         } else {
             $result['active_sy'] = null; // or set a default fallback
         }
 
+        $result['systemType'] = $systemType;
+
+        // If this is a DEMO system, load demo accounts for the dropdown
+        if ($systemType === 'demo') {
+            $result['demo_accounts'] = $this->Login_model->get_demo_accounts();
+        } else {
+            $result['demo_accounts'] = []; // always define to avoid undefined variable in view
+        }
+
         $this->load->view('home_page', $result);
     }
+
 
 
     function registration()
