@@ -185,7 +185,7 @@ class Login_model extends CI_Model
     $this->db->from('o_users');
 
     // Optionally filter which accounts appear in the demo dropdown:
-    // $this->db->where_in('position', ['Administrator', 'Registrar', 'Program Head', 'Student']);
+    $this->db->where_in('position', ['Administrator', 'Admin', 'Registrar', 'Program Head', 'Property Custodian', 'Student', 'Teacher', 'Cashier', 'Accounting', 'Administrator', 'Librarian', 'Guidance', 'Super Admin', 'Finance Officer', 'Principal', 'Encoder', 'Academic Officer']);
 
     $this->db->order_by('position', 'ASC');
     $this->db->order_by('username', 'ASC');
