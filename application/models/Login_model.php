@@ -178,18 +178,70 @@ class Login_model extends CI_Model
     $query = $this->db->get();
     return $query->row_array();
   }
+
   public function get_demo_accounts()
   {
-    // Adjusted to match actual columns in o_users
+    // Get all potential demo accounts from o_users
     $this->db->select('username, password, position, fName, lName');
     $this->db->from('o_users');
-
-    // Optionally filter which accounts appear in the demo dropdown:
-    $this->db->where_in('position', ['Administrator', 'Admin', 'Registrar', 'Program Head', 'Property Custodian', 'Student', 'Teacher', 'Cashier', 'Accounting', 'Administrator', 'Librarian', 'Guidance', 'Super Admin', 'Finance Officer', 'Principal', 'Encoder', 'Academic Officer']);
-
     $this->db->order_by('position', 'ASC');
     $this->db->order_by('username', 'ASC');
 
-    return $this->db->get()->result();
+    $rows = $this->db->get()->result();
+
+    // Preferred usernames per position (case-insensitive match)
+    $preferred = [
+      'Registrar' => 'registrar',       // always pick this Registrar account if it exists
+      'Student'   => '205504190039',    // always pick this Student account if it exists
+    ];
+
+    $unique  = [];
+    $chosenByPos = [];
+
+    // ---------- 1st pass: pick preferred usernames if present ----------
+    foreach ($rows as $row) {
+      $pos = trim((string) $row->position);
+      if ($pos === '') {
+        continue; // skip weird rows
+      }
+
+      if (!isset($preferred[$pos])) {
+        continue; // nothing special for this position
+      }
+
+      // Check if username matches the preferred one (case-insensitive)
+      $preferredUsername = strtolower($preferred[$pos]);
+      if (strtolower($row->username) === $preferredUsername) {
+        // Lock this in as the account for this position
+        $chosenByPos[$pos] = $row;
+      }
+    }
+
+    // ---------- 2nd pass: fill in remaining positions with first match ----------
+    foreach ($rows as $row) {
+      $pos = trim((string) $row->position);
+      if ($pos === '') {
+        continue;
+      }
+
+      // If we already chose a preferred account for this position, skip others
+      if (isset($chosenByPos[$pos])) {
+        continue;
+      }
+
+      // If we haven't yet assigned anything for this position, take this row
+      if (!isset($unique[$pos])) {
+        $unique[$pos] = $row;
+      }
+    }
+
+    // Merge preferred + fallback into a flat array
+    // Preferred ones first, then others
+    foreach ($chosenByPos as $pos => $row) {
+      $unique[$pos] = $row; // overwrite fallback if any
+    }
+
+    // Return as indexed array
+    return array_values($unique);
   }
 }
