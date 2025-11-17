@@ -27,8 +27,8 @@
                                     <h5 class="m-0" style="text-transform:uppercase">
                                         <strong>CONSOLIDATED REPORT OF GRADES</strong><br>
                                         <?php
-                                        // Figure out current grading code -> which lock field to inspect
-                                        $grading_code  = $this->input->post('grading'); // PGrade / MGrade / PFinalGrade / FGrade / ALL
+
+                                        $grading_code  = $this->input->post('grading');
                                         $is_all_grading = ($grading_code === 'ALL');
                                         $period_field  = null;
                                         switch ($grading_code) {
@@ -48,7 +48,7 @@
                                                 $period_field = '__ALL__';
                                                 break;
                                         }
-                                        // Compute if ANY subject is locked for this grading
+
                                         $anyLockedThisPeriod = false;
                                         if ($period_field && !empty($sub)) {
                                             foreach ($sub as $r) {
@@ -97,102 +97,45 @@
                             <div class="card">
                                 <div class="card-body">
 
-                                    <!-- Filter Form -->
                                     <style>
-                                        /* Put this in the same <style> block where your table CSS is */
-
-                                        /* Force landscape so wide table fits */
                                         @page {
-                                            size: A4 landscape;
-                                            margin: 10mm;
+
+                                            size: A4 portrait;
+                                            margin: 0.10in;
                                         }
-
-                                        @media print {
-
-                                            /* Hide navigation / chrome */
-                                            .navbar-custom,
-                                            .left-side-menu,
-                                            .right-bar,
-                                            .right-bar-toggle,
-                                            .footer,
-                                            .no-print,
-                                            .d-print-none {
-                                                display: none !important;
-                                            }
-
-                                            /* Use full width for content (remove sidebar margin) */
-                                            #wrapper {
-                                                padding-top: 0 !important;
-                                            }
-
-                                            .content-page {
-                                                margin-left: 0 !important;
-                                            }
-
-                                            .content-page .content,
-                                            .container-fluid,
-                                            .card,
-                                            .card-body {
-                                                margin: 0 !important;
-                                                padding: 0 !important;
-                                            }
-
-                                            /* Table/layout tweaks so nothing is cut */
-                                            .table-responsive {
-                                                overflow: visible !important;
-                                                width: 100% !important;
-                                            }
-
-                                            #consol-table {
-                                                width: 100% !important;
-                                            }
-
-                                            #consol-table thead th,
-                                            .sticky-left {
-                                                position: static !important;
-                                                /* disable sticky on print */
-                                            }
-
-                                            #consol-table th,
-                                            #consol-table td {
-                                                font-size: 9px;
-                                                padding: 2px 3px;
-                                                white-space: normal;
-                                            }
-
-                                            html,
-                                            body {
-                                                width: 100%;
-                                                margin: 0;
-                                                padding: 0;
-                                                zoom: 0.8;
-                                                /* adjust (0.7–0.9) if still clipped */
-                                                -webkit-print-color-adjust: exact;
-                                            }
-                                        }
-
 
                                         .print-only {
                                             display: none;
-                                        }
-
-                                        @media print {
-                                            .print-only {
-                                                display: block !important;
-                                            }
                                         }
 
                                         .dt-buttons {
                                             display: none !important;
                                         }
 
-                                        .subject-th {
-                                            min-width: 140px;
-                                            font-size: 11px;
-                                        }
-
                                         .d-none {
                                             display: none !important;
+                                        }
+
+
+
+                                        #consol-table {
+                                            position: relative;
+
+                                            border-collapse: collapse;
+                                            border-spacing: 0;
+                                            width: 100%;
+                                        }
+
+                                        #consol-table thead th {
+                                            position: sticky;
+                                            top: 0;
+                                            background: #eef2f7;
+                                            z-index: 7;
+                                        }
+
+                                        .subject-th {
+                                            min-width: 120px;
+                                            font-size: 11px;
                                         }
 
                                         .subject-th .d-flex.flex-column {
@@ -202,6 +145,48 @@
                                         .subject-th .font-weight-bold {
                                             font-size: 11px;
                                         }
+
+                                        .grade-cell {
+                                            min-width: 80px;
+                                            text-align: center;
+                                            font-size: 11px;
+                                        }
+
+                                        .col-average,
+                                        .col-equivalent {
+                                            text-align: center;
+                                            min-width: 90px;
+                                            font-size: 11px;
+                                        }
+
+                                        .sticky-left {
+                                            position: sticky;
+                                            background: #fff;
+                                            z-index: 5;
+                                        }
+
+                                        .thead-light .sticky-left {
+                                            background: #eef2f7;
+                                            z-index: 6;
+                                        }
+
+                                        .sticky-left-1 {
+                                            left: 0;
+                                            min-width: 55px;
+                                        }
+
+                                        .sticky-left-2 {
+                                            left: 60px;
+                                            min-width: 230px;
+                                            font-size: 11px;
+                                        }
+
+                                        .col-fullname {
+                                            min-width: 230px;
+                                            font-size: 11px;
+                                        }
+
+
 
                                         .grade-chip {
                                             display: flex;
@@ -242,23 +227,6 @@
 
                                         .grade-chip--plain strong {
                                             font-size: 11px;
-                                        }
-
-                                        .grade-cell {
-                                            min-width: 120px;
-                                            text-align: center;
-                                            font-size: 11px;
-                                        }
-
-                                        #consol-table {
-                                            position: relative;
-                                        }
-
-                                        #consol-table thead th {
-                                            position: sticky;
-                                            top: 0;
-                                            background: #eef2f7;
-                                            z-index: 7;
                                         }
 
                                         .lock-pills {
@@ -325,40 +293,114 @@
                                             margin-top: 2px;
                                         }
 
-                                        .sticky-left {
-                                            position: sticky;
-                                            background: #fff;
-                                            z-index: 5;
-                                        }
 
-                                        .thead-light .sticky-left {
-                                            background: #eef2f7;
-                                            z-index: 6;
-                                        }
+                                        @media print {
 
-                                        .sticky-left-1 {
-                                            left: 0;
-                                            min-width: 55px;
-                                        }
 
-                                        .sticky-left-2 {
-                                            left: 60px;
-                                            min-width: 230px;
-                                            font-size: 11px;
-                                        }
+                                            .navbar-custom,
+                                            .left-side-menu,
+                                            .right-bar,
+                                            .right-bar-toggle,
+                                            .footer,
+                                            .no-print,
+                                            .d-print-none {
+                                                display: none !important;
+                                            }
 
-                                        .col-fullname {
-                                            min-width: 230px;
-                                            font-size: 11px;
-                                        }
+                                            #wrapper {
+                                                padding-top: 0 !important;
+                                            }
 
-                                        .col-average,
-                                        .col-equivalent {
-                                            text-align: center;
-                                            min-width: 90px;
-                                            font-size: 11px;
+                                            .content-page {
+                                                margin-left: 0 !important;
+                                            }
+
+                                            .content-page .content,
+                                            .container-fluid,
+                                            .card,
+                                            .card-body {
+                                                margin: 0 !important;
+                                                padding: 0 !important;
+                                            }
+
+                                            .table-responsive {
+                                                overflow: visible !important;
+                                                width: 100% !important;
+                                            }
+
+
+                                            #consol-table {
+                                                width: 100% !important;
+                                                table-layout: auto !important;
+                                            }
+
+                                            #consol-table thead th,
+                                            .sticky-left {
+                                                position: static !important;
+
+                                            }
+
+                                            #consol-table th,
+                                            #consol-table td {
+                                                font-size: 11px;
+
+                                                padding: 2px 3px;
+                                                white-space: normal;
+                                            }
+
+                                            html,
+                                            body {
+                                                width: 100%;
+                                                margin: 0;
+                                                padding: 0;
+                                                zoom: 0.95;
+
+                                                -webkit-print-color-adjust: exact;
+                                                font-size: 11px;
+                                            }
+
+                                            .print-only {
+                                                display: block !important;
+                                            }
+
+                                            .print-letterhead {
+                                                display: block !important;
+                                                margin: 0 auto 8px;
+                                                width: 80%;
+                                                max-height: 110px;
+                                                object-fit: contain;
+                                            }
+
+
+
+                                            .sticky-left-2,
+                                            .col-fullname {
+                                                min-width: 160px !important;
+
+                                                font-size: 10.5px !important;
+                                            }
+
+                                            .subject-th {
+                                                min-width: 70px !important;
+
+                                                font-size: 10.5px !important;
+                                            }
+
+                                            .grade-cell {
+                                                min-width: 35px !important;
+
+                                                font-size: 10.5px !important;
+                                                padding: 1px 2px !important;
+                                            }
+
+                                            .col-average,
+                                            .col-equivalent {
+                                                min-width: 55px !important;
+                                                font-size: 10.5px !important;
+                                            }
                                         }
                                     </style>
+
 
                                     <div class="mb-3 no-print">
                                         <?= form_open('Masterlist/consol'); ?>
@@ -449,8 +491,11 @@
                                     <?php if ($this->input->post('submit')): ?>
                                         <!-- Letterhead (print only) -->
                                         <?php if (isset($so->letterhead_web) && $so->letterhead_web): ?>
-                                            <img class="print-only mb-2" src="<?= base_url('upload/banners/' . $so->letterhead_web); ?>" alt="mySRMS Portal" width="100%">
+                                            <img class="print-only print-letterhead mb-2"
+                                                src="<?= base_url('upload/banners/' . $so->letterhead_web); ?>"
+                                                alt="mySRMS Portal">
                                         <?php endif; ?>
+
 
                                         <?php
                                         $grading_meta = [
@@ -496,9 +541,40 @@
                                             'Female' => 'bg-danger text-white',
                                             'Others' => 'bg-secondary text-white',
                                         ];
+                                        if (!function_exists('short_subject_label')) {
+                                            /**
+                                             * Trim long subject names so they don't mess up the column width.
+                                             * Applies to both Grade School and High School as per client spec.
+                                             */
+                                            function short_subject_label($desc)
+                                            {
+                                                $orig  = (string) $desc;
+                                                $lower = strtolower(trim($orig));
+
+                                                // Map of "contains" → short label
+                                                $map = [
+                                                    'araling panlipunan'                         => 'Aral Pan',
+                                                    'edukasyong pantahanan at pangkabuhayan'     => 'E.P.P.',
+                                                    'mathematics'                                => 'Math',
+                                                    'tech. & livelihood ed'                      => 'T.L.E.',
+                                                    'technology and livelihood education'        => 'T.L.E.', // fallback wording
+                                                ];
+
+                                                foreach ($map as $needle => $short) {
+                                                    if (strpos($lower, $needle) !== false) {
+                                                        return $short;
+                                                    }
+                                                }
+
+                                                // Default: return original if no mapping
+                                                return $orig;
+                                            }
+                                        }
 
                                         $subjectsCnt  = !empty($sub) ? count($sub) : 0;
-                                        // EXACTLY match THEAD: #, Fullname, [subjects...], Average, Equivalent
+
+                                        $subjectsCnt  = !empty($sub) ? count($sub) : 0;
+
                                         $colspan      = 2 + $subjectsCnt + 2;
 
                                         $grouped = ['Male' => [], 'Female' => [], 'Others' => []];
@@ -589,38 +665,51 @@
 
                                                             <?php if (!empty($sub)): foreach ($sub as $r): ?>
                                                                     <?php
-                                                                    $code = $r->SubjectCode ?? '';
-                                                                    $desc = $sub_desc_map[$code] ?? ($r->Description ?? '');
-                                                                    $sid  = subj_id($code);
-                                                                    $locks = $locks_map[$code] ?? (object)[];
-
+                                                                    $code      = $r->SubjectCode ?? '';
+                                                                    $fullDesc  = $sub_desc_map[$code] ?? ($r->Description ?? '');
+                                                                    $display   = short_subject_label($fullDesc ?: $code); // << use short label
+                                                                    $sid       = subj_id($code);
+                                                                    $locks     = $locks_map[$code] ?? (object)[];
                                                                     ?>
                                                                     <th class="subject-th">
                                                                         <div class="d-flex flex-column">
-                                                                            <div class="font-weight-bold" title="<?= htmlspecialchars($code, ENT_QUOTES, 'UTF-8'); ?>">
-                                                                                <?= htmlspecialchars($desc ?: $code, ENT_QUOTES, 'UTF-8'); ?>
+                                                                            <!-- Show short label, keep full description in the tooltip -->
+                                                                            <div class="font-weight-bold"
+                                                                                title="<?= htmlspecialchars($fullDesc ?: $code, ENT_QUOTES, 'UTF-8'); ?>">
+                                                                                <?= htmlspecialchars($display, ENT_QUOTES, 'UTF-8'); ?>
                                                                             </div>
                                                                             <!-- Lock pills (no-print) -->
                                                                             <?php if (!$is_all_grading): ?>
-                                                                                <div class="lock-pills no-print" data-code="<?= htmlspecialchars($code, ENT_QUOTES, 'UTF-8'); ?>" data-desc="<?= htmlspecialchars($desc, ENT_QUOTES, 'UTF-8'); ?>" data-sid="<?= $sid; ?>">
+                                                                                <div class="lock-pills no-print"
+                                                                                    data-code="<?= htmlspecialchars($code, ENT_QUOTES, 'UTF-8'); ?>"
+                                                                                    data-desc="<?= htmlspecialchars($fullDesc, ENT_QUOTES, 'UTF-8'); ?>"
+                                                                                    data-sid="<?= $sid; ?>">
                                                                                     <?php foreach ($visible_period_keys as $period_key):
                                                                                         if (empty($grading_meta[$period_key])) {
                                                                                             continue;
                                                                                         }
-                                                                                        $meta = $grading_meta[$period_key];
-                                                                                        $slug = $meta['slug'];
+                                                                                        $meta       = $grading_meta[$period_key];
+                                                                                        $slug       = $meta['slug'];
                                                                                         $lock_field = $meta['lock_field'];
-                                                                                        $isLocked = !empty($locks->{$lock_field});
-                                                                                        $wrapId = 'lk-wrap-' . $sid . '-' . $slug;
+                                                                                        $isLocked   = !empty($locks->{$lock_field});
+                                                                                        $wrapId     = 'lk-wrap-' . $sid . '-' . $slug;
                                                                                     ?>
                                                                                         <div class="lock-period" id="<?= $wrapId; ?>">
-                                                                                            <span class="lock-pill <?= $isLocked ? 'locked' : 'open'; ?>" id="lk-<?= $sid; ?>-<?= $slug; ?>" data-period="<?= $slug; ?>" data-next="<?= $isLocked ? 'unlock' : 'lock'; ?>" title="<?= $meta['label']; ?>: <?= $isLocked ? 'Locked' : 'Open'; ?>">
+                                                                                            <span class="lock-pill <?= $isLocked ? 'locked' : 'open'; ?>"
+                                                                                                id="lk-<?= $sid; ?>-<?= $slug; ?>"
+                                                                                                data-period="<?= $slug; ?>"
+                                                                                                data-next="<?= $isLocked ? 'unlock' : 'lock'; ?>"
+                                                                                                title="<?= $meta['label']; ?>: <?= $isLocked ? 'Locked' : 'Open'; ?>">
                                                                                                 <?= $meta['label']; ?>
                                                                                             </span>
-                                                                                            <span class="lock-icon-btn lock-btn <?= $isLocked ? 'active' : ''; ?>" data-period="<?= $slug; ?>" data-action="lock" title="Lock <?= $meta['label']; ?> grading">
+                                                                                            <span class="lock-icon-btn lock-btn <?= $isLocked ? 'active' : ''; ?>"
+                                                                                                data-period="<?= $slug; ?>" data-action="lock"
+                                                                                                title="Lock <?= $meta['label']; ?> grading">
                                                                                                 <i class="fa fa-lock"></i>
                                                                                             </span>
-                                                                                            <span class="lock-icon-btn unlock-btn <?= $isLocked ? '' : 'active'; ?>" data-period="<?= $slug; ?>" data-action="unlock" title="Unlock <?= $meta['label']; ?> grading">
+                                                                                            <span class="lock-icon-btn unlock-btn <?= $isLocked ? '' : 'active'; ?>"
+                                                                                                data-period="<?= $slug; ?>" data-action="unlock"
+                                                                                                title="Unlock <?= $meta['label']; ?> grading">
                                                                                                 <i class="fa fa-unlock"></i>
                                                                                             </span>
                                                                                         </div>
@@ -631,6 +720,7 @@
                                                                     </th>
                                                             <?php endforeach;
                                                             endif; ?>
+
 
                                                             <th class="col-average">Average</th>
                                                             <th class="col-equivalent">Equivalent</th>
@@ -669,15 +759,13 @@
                                                                                     'strand'        => $strand,
                                                                                 ])->get('grades')->row();
                                                                             } else {
-                                                                                $sg = $this->Common->three_cond_row(
-                                                                                    'grades',
-                                                                                    'StudentNumber',
-                                                                                    $srow->StudentNumber,
-                                                                                    'YearLevel',
-                                                                                    $gl,
-                                                                                    'SubjectCode',
-                                                                                    $r->SubjectCode
-                                                                                );
+                                                                                $sg = $this->db->where([
+                                                                                    'StudentNumber' => $srow->StudentNumber,
+                                                                                    'YearLevel'     => $gl,
+                                                                                    'SubjectCode'   => $r->SubjectCode,
+                                                                                    'SY'            => $this->session->userdata('sy'),
+                                                                                    'Section'       => $sec, // optional, but safer
+                                                                                ])->get('grades')->row();
                                                                             }
 
                                                                             $gradeChips = [];
@@ -757,7 +845,7 @@
 
                                                 <!-- Hidden export table will be injected here via JS -->
                                             </div>
-                                        <?php endif; // SHS guard 
+                                        <?php endif;
                                         ?>
                                     <?php else: ?>
                                         <div class="alert alert-info mb-0">
@@ -809,7 +897,7 @@
         <script src="<?= base_url(); ?>assets/libs/sweetalert2/sweetalert2.min.js"></script>
         <script>
             $(function() {
-                // ---------- GradeLevel -> Section filter (existing) ----------
+
                 const gradeLevelSelect = document.getElementById('grade_level');
                 const sectionSelect = document.getElementById('section');
                 if (gradeLevelSelect && sectionSelect) {
@@ -829,7 +917,7 @@
                     filterSections();
                 }
 
-                // ---------- Helpers ----------
+
                 const glSel = document.getElementById('grade_level');
                 const secSel = document.getElementById('section');
                 const strSel = document.getElementById('strand');
@@ -871,7 +959,7 @@
                     }
                 }
 
-                // ---------- Show/Hide Strand field for SHS ----------
+
                 function toggleShsFields() {
                     if (!glSel || !strSel) return;
                     const on = isShs(glSel.value);
@@ -884,12 +972,12 @@
                     }
                 }
 
-                // ---------- Strand: AJAX load from semsubjects ----------
+
                 function populateStrands() {
                     if (!glSel || !strSel) return;
 
                     const glVal = glSel.value || '';
-                    if (!isShs(glVal)) { // only for SHS
+                    if (!isShs(glVal)) {
                         strSel.innerHTML = '<option value="">Select Strand</option>';
                         return;
                     }
@@ -916,7 +1004,7 @@
                         });
                 }
 
-                // Wire up SHS/strand behavior
+
                 if (glSel) glSel.addEventListener('change', function() {
                     toggleShsFields();
                     populateStrands();
@@ -927,13 +1015,13 @@
                 toggleShsFields();
                 populateStrands();
 
-                // ---------- Auto-reload helper (debounced) [NEW ADDED] ----------
+
                 let _reloadTimer = null;
 
                 function queuePageReload(delayMs = 0) {
                     if (_reloadTimer) return;
                     if (delayMs <= 0) {
-                        // Reload on the next frame so the toast can fire, but no visible delay
+
                         return requestAnimationFrame(function() {
                             window.location.reload();
                         });
@@ -943,7 +1031,7 @@
                     }, delayMs);
                 }
 
-                // ---------- Per-subject locking handlers ----------
+
                 function updateSubjectBadges(sid, locks, isShs) {
                     const map = [{
                             id: '#lk-' + sid + '-prelim',
@@ -1005,7 +1093,7 @@
                                 updateSubjectBadges(sid, resp.locks, isShsCtx);
                                 toast((action === 'lock' ? 'Locked ' : 'Unlocked ') + (period === 'all' ? 'ALL periods' : period) + ' for ' + code + '.', 'success');
 
-                                // Auto-reload shortly after successful toggle [NEW ADDED]
+
                                 queuePageReload(0);
                             } else {
                                 toast('Failed to toggle lock for ' + code + '.', 'error');
@@ -1037,7 +1125,7 @@
                     postToggle(code, desc, period, action, sid);
                 });
 
-                // ---------- Semester badge recompute after lock changes ----------
+
                 var CURRENT_PERIODS = <?= json_encode($visiblePeriodSlugsForJs); ?> || [];
 
                 function recomputeSemesterBadge() {
@@ -1091,9 +1179,20 @@
                     var $src = $('#consol-table');
                     if (!$src.length) return;
 
-                    // Clone the table for export (no sex-divider rows)
+
                     var $clone = $src.clone();
                     $clone.attr('id', 'consol-table-export').removeClass('table-bordered').addClass('d-none');
+                    // Simplify subject headers for export: use only the short label text
+                    $clone.find('thead th.subject-th').each(function() {
+                        var $th = $(this);
+                        // Get the inner short label (what you already show on screen)
+                        var label = $.trim($th.find('.font-weight-bold').text());
+                        if (!label) {
+                            label = $.trim($th.text());
+                        }
+                        // Replace header content with plain text label for clean export
+                        $th.text(label);
+                    });
 
                     $clone.find('tbody tr').filter(function() {
                         var $tds = $(this).children('td');
@@ -1127,14 +1226,14 @@
                         buttons: (function() {
                             var arr = [];
 
-                            // CSV (always available)
+
                             arr.push({
                                 extend: 'csvHtml5',
                                 title: exportTitle,
                                 filename: exportFilename
                             });
 
-                            // Excel (only if JSZip is loaded)
+
                             if (typeof JSZip !== 'undefined') {
                                 arr.push({
                                     extend: 'excelHtml5',
@@ -1143,13 +1242,13 @@
                                 });
                             }
 
-                            // PDF (only if pdfMake is loaded)
+
                             if (typeof pdfMake !== 'undefined') {
                                 arr.push({
                                     extend: 'pdfHtml5',
                                     title: exportTitle,
                                     filename: exportFilename,
-                                    orientation: 'landscape',
+                                    orientation: 'portrait',
                                     pageSize: 'A4',
                                     customize: function(doc) {
                                         if (doc.styles && doc.styles.tableHeader) {
@@ -1165,7 +1264,7 @@
                         })()
                     });
 
-                    // Wire export buttons
+
                     $('#btnExportExcel').off('click').on('click', function(e) {
                         e.preventDefault();
                         if (!window.dtExport) return;
