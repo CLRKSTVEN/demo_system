@@ -3984,21 +3984,27 @@ function profileEntry()
 	public function get_provinces()
 	{
 		$provinces = $this->StudentModel->get_provinces();
-		echo json_encode($provinces);
+		$this->output
+			->set_content_type('application/json')
+			->set_output(json_encode($provinces));
 	}
 
 	public function get_cities()
 	{
 		$province = $this->input->post('province');
 		$cities = $this->StudentModel->get_cities($province);
-		echo json_encode($cities);
+		$this->output
+			->set_content_type('application/json')
+			->set_output(json_encode($cities));
 	}
 
 	public function get_barangays()
 	{
 		$city = $this->input->post('city');
 		$barangays = $this->StudentModel->get_barangays($city);
-		echo json_encode($barangays);
+		$this->output
+			->set_content_type('application/json')
+			->set_output(json_encode($barangays));
 	}
 
 	function inventoryList()

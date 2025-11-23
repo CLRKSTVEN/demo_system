@@ -528,6 +528,9 @@
 					$.each(data, function(index, province) {
 						$('#province').append('<option value="' + province.id + '">' + province.name + '</option>');
 					});
+				},
+				error: function(xhr, status, error) {
+					console.error('Province load error:', status, error);
 				}
 			});
 
